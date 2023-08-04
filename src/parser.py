@@ -100,11 +100,11 @@ class Parser(object):
             "-m",
             integrations,
             "-o",
-            f"Re-{app}-{slugify(version)}{output_prefix}output.apk",
+            f"{app}-{slugify(version)}{output_prefix}output.apk",
             "--keystore",
             self.config.keystore_name,
             "--options",
-            "options.json",
+            options,
         ]
         if is_experimental:
             logger.debug("Using experimental features")
