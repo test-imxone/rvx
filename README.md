@@ -26,6 +26,12 @@
 
 ## Usage
 
+### Pre-Forked
+
+I think that there might be possibility that some people would've already forked the parent repository of @nikhilbadyal or it's child repository (for example, of @Spacellary). So, here are [listed files](/apps/docs/pre-forked.md) (may or may not replace originals) which you can copy to repository clone folder and push those changes. It'll make your repository eligible to be used in **Automation** and somewhat similar to mine. Proceed with patch methods.
+
+### Methods
+
 There are actually two ways to patch apps - **Manual** & **Automated**. The Manual way simply requires the GitHub Repository only and you've to do all the work yourself like customizing the patches, downloading & installing. The Automated way requires the GitHub Repository as well as the RVX-Builds project in Tasker. In the automated way, you can easily customize and configure many more properties using Tasker.
 
 If you're doing it for the first time, I'd suggest you to go with Manual method to make yourself comfortable with the different patching terms in the repository and configure some necessary setups before automating.
