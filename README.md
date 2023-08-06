@@ -16,13 +16,13 @@
 
 **Are you tired of patching ReVanced apps on your mobile devices? Which version to patch and which apk to provide for patching? Is the waiting period long enough and still the patch doesn't work as it should? Device compatibility issues? Auto-updates?...** All that can be done with the help of this [github repository](https://github.com/IMXEren/rvx-builds) (for patching & building) and this [**RVX-Builds**](https://taskernet.com/shares/?user=AS35m8k0QSchKA1x02SixFIhiL41a828J1qapOYfcEuyL2zSn%2FfJTN5WVSi01o18x6EAFb4%3D&id=Project%3ARVX-Builds) project in Tasker (for interactive selection & automation).
 
-***Note: Neither the mentioned github repo nor the Tasker project are in anyway officially related to ReVanced Team. All this work comes under 3rd party so please don't ask for support from ReVanced Team regarding it.***
+***Note: Neither the mentioned github repository nor the Tasker project are in anyway officially related to ReVanced Team. All this work falls under 3rd party so please don't ask for support from ReVanced Team regarding it.***
 
 ## Requirements
 
 - [GitHub Account](https://github.com/join) (Free)
-- [Tasker](https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm) (Trial -> Paid)
-- [Join](https://play.google.com/store/apps/details?id=com.joaomgcd.join) (Trial -> Paid; Optional)
+- Tasker ([Trial](https://tasker.joaoapps.com/download.html) -> [Paid]((https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm)))
+- Join ([Trial -> Paid]((https://play.google.com/store/apps/details?id=com.joaomgcd.join)); Optional)
 
 ## Usage
 
@@ -30,7 +30,7 @@
 
 I think that there might be possibility that some people would've already forked the parent repository of @nikhilbadyal or it's child repository (for example, of @Spacellary). So, here are [listed files](/apps/docs/pre-forked.md) (may or may not replace originals) which you can copy to repository clone folder and push those changes. It'll make your repository eligible to be used in **Automation** and somewhat similar to mine. Proceed with patch methods.
 
-**Note: Won't work if [*Custom Patch Resources*](https://github.com/nikhilbadyal/docker-py-revanced/pull/239) PR is merged to any of the repositories due to major changes.**
+**Note: The automation integration won't work if [*Custom Patch Resources*](https://github.com/nikhilbadyal/docker-py-revanced/pull/239) PR is merged to any of the repositories due to major changes. Your only choice is to use this repository while I update.**
 
 ### Methods
 

@@ -10,6 +10,7 @@ from utils.urls import GitHubURLs
 gh = GitHubRepo()
 repo = gh.get_repo()
 branch = gh.get_branch()
+backup_branch = gh.get_backup_branch()
 urls = GitHubURLs(repo, branch)
 patches_py_url = urls.get_patches_py()
 rv_json_url = urls.get_rv_json()
@@ -93,6 +94,12 @@ all_rv_packages = get_packages_from_patches(rv_patches)
 all_rvx_packages = get_packages_from_patches(rvx_patches)
 
 available_packages, app_code = get_available_patch_apps(patches_py_url)
+if not available_packages and not app_code:
+    logger.warning("Fallback to {} branch", backup_branch)
+    backup_urls = GitHubURLs(repo, backup_branch)
+    patches_py_url = backup_urls.get_patches_py()
+    available_packages, app_code = get_available_patch_apps(patches_py_url)
+
 rv_packages = list(set(all_rv_packages) & set(available_packages))
 rvx_packages = list(set(all_rvx_packages) & set(available_packages))
 supported_packages = list(set(all_packages) & set(available_packages))

@@ -77,9 +77,15 @@ if __name__ == "__main__":
     gh = GitHubRepo()
     repo = gh.get_repo()
     branch = gh.get_branch()
+    backup_branch = gh.get_backup_branch()
     urls = GitHubURLs(repo, branch)
     json_file = urls.get_env_json()
     json_data = requests.get(json_file).text
+    if json_data == "404: Not Found":
+        logger.warning("Fallback to {} branch", backup_branch)
+        backup_urls = GitHubURLs(repo, backup_branch)
+        json_file = backup_urls.get_env_json()
+        json_data = requests.get(json_file).text
     output_file = "apps/.env"
 
     # Define the desired sorting key order

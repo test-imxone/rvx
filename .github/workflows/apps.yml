@@ -12,15 +12,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@main
         
       # - name: Configure git
       #   run: |
-      #     git config --global user.name "actions-user"
-      #     git config --global user.email "actions@github.com"
+      #      git config --global user.name "actions-user"
+      #      git config --global user.email "actions@github.com"
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@main
         with:
           python-version: "3.11"
 
@@ -39,11 +39,11 @@ jobs:
           "$sed_script"
 
       - name: Commit Updated .py file contents
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@master
         with:
           skip_checkout: true
           file_pattern: .
-          commit_message: Updated files
+          commit_message: 📝 Updated files
         
       - name: Run Python script
         run: |
@@ -52,14 +52,14 @@ jobs:
           python apps/scripts/parse-env-json.py
 
       - name: Commit Update file
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@master
         with:
           branch: changelogs
           create_branch: true
           skip_checkout: true
           file_pattern: 'apps/json/env.json'
           commit_options: '--allow-empty'
-          commit_message: Parsed .env into env.json
+          commit_message: 📖 Parsed .env into env.json
           push_options: '--force'
           
       - name: Parse env.json to .env
@@ -67,7 +67,7 @@ jobs:
           python apps/scripts/parse-json-env.py
 
       - name: Commit Update file
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@master
         with:
           branch: changelogs
           create_branch: true
@@ -75,5 +75,5 @@ jobs:
           file_pattern: .
           repository: .
           commit_options: '--allow-empty'
-          commit_message: Add generated files
+          commit_message: 📝 Add generated files
           push_options: '--force'
