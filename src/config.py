@@ -25,6 +25,8 @@ class RevancedConfig(object):
             "my-expenses",
             "backdrops",
             "irplus",
+            "meme-generator-free",
+            "yuka",
         ]
         self.apk_pure = ["hex-editor", "androidtwelvewidgets"]
         self.apk_sos = ["expensemanager", "candyvpn"]
