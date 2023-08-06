@@ -30,6 +30,8 @@
 
 I think that there might be possibility that some people would've already forked the parent repository of @nikhilbadyal or it's child repository (for example, of @Spacellary). So, here are [listed files](/apps/docs/pre-forked.md) (may or may not replace originals) which you can copy to repository clone folder and push those changes. It'll make your repository eligible to be used in **Automation** and somewhat similar to mine. Proceed with patch methods.
 
+**Note: Won't work if [*Custom Patch Resources*](https://github.com/nikhilbadyal/docker-py-revanced/pull/239) PR is merged to any of the repositories due to major changes.**
+
 ### Methods
 
 There are actually two ways to patch apps - **Manual** & **Automated**. The Manual way simply requires the GitHub Repository only and you've to do all the work yourself like customizing the patches, downloading & installing. The Automated way requires the GitHub Repository as well as the RVX-Builds project in Tasker. In the automated way, you can easily customize and configure many more properties using Tasker.
@@ -57,9 +59,9 @@ It'll be better for yourself if you have some [basic knowledge about Tasker](htt
 1. Go to this [page](https://github.com/settings/tokens) and `Generate new token > Classic`. Enter `RVX-Builds` in Note, set any expiration period and select these scopes (sufficient) - `repo, workflow, write:packages`. Click `Generate Token`. Note the token - `ghp_*`
 2. Import [**RVX-Builds**](https://taskernet.com/shares/?user=AS35m8k0QSchKA1x02SixFIhiL41a828J1qapOYfcEuyL2zSn%2FfJTN5WVSi01o18x6EAFb4%3D&id=Project%3ARVX-Builds) project on Tasker and setup the GitHub credentials. It'll popup itself for you to setup or you can run `RVX-Builds - Setup` Task in `Tasks` Tab inside `RVX-Builds` Project. Projects are listed horizontally on bottom bar.
 3. Once completed, you're ready to customize patches. Run `RVX-Builds - Manager` to do so. It'll consist of menu items -
-    - Apps: To modify app related properties.
-    - Downloads: To modify download & installation of app properties.
-    - Merge: To merge your customization (locally on Tasker) with the `.env` file in your GitHub Repo. Only shown if you've made customization changes in Apps.
+    - Apps: To modify app related properties. (**Must configure**)
+    - Downloads: To modify download & installation of app properties. (**Must configure**)
+    - Merge: To merge your customization (locally on Tasker) with the `.env` file in your GitHub Repo. Only shown if you've made customization changes in *Apps* or opened it (i.e. always open Apps even when don't change).
     - Releases: To build your patched apps and release them. Set the above options accordingly and make a stable release.
 4. If you have access to Join paid version, enable `RVX-Builds - New Release [Join]` Profile in `Profiles` Tab. Also enable `RVX-Builds - Check For Updates` if you want it to handle cancelled or errored out downloads due to any reason. Also, you need to add **JOIN API** [secrets](/apps/docs/extras.md#github-secrets). Here's [how to](/apps/docs/extras.md#join-api) do it.
 5. If you don't have access to Join paid version, enable `RVX-Builds - Check For Updates` Profile in `Profiles` Tab. Disable `RVX-Builds - New Release [Join]` in this case.
