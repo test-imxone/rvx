@@ -30,26 +30,26 @@ class Patches(object):
         "com.ithebk.expensemanager": "expensemanager",
         "net.dinglisch.android.taskerm": "tasker",
         "net.binarymode.android.irplus": "irplus",
-        "com.vsco.cam": "vsco",
-        "com.zombodroid.MemeGenerator": "meme-generator-free",
+        "com.sony.songpal.mdr": "sony_headphones",
+        "com.google.android.apps.recorder": "google_recorder",
         "com.teslacoilsw.launcher": "nova_launcher",
+        "com.zombodroid.MemeGenerator": "meme_generator",
+        "com.vsco.cam": "vsco",
+        "tv.trakt.trakt": "trakt",
+        "com.laurencedawson.reddit_sync": "reddit_sync",
+        "com.rubenmayayo.reddit": "reddit_boost",
+        "ml.docilealligator.infinityforreddit": "reddit_infinity",
+        "free.reddit.news": "reddit_relay",
+        "com.onelouder.baconreader": "reddit_baconreader",
+        "com.andrewshu.android.reddit": "reddit_isfun",
+        "me.ccrama.redditslide": "reddit_slide",
+        "com.dci.dev.androidtwelvewidgets": "androidtwelvewidgets",
+        "io.yuka.android": "yuka",
         "eu.faircode.netguard": "netguard",
         "com.instagram.android": "instagram",
         "com.nis.app": "inshorts",
-        "com.facebook.orca": "messenger",
-        "com.google.android.apps.recorder": "grecorder",
-        "tv.trakt.trakt": "trakt",
+        "com.facebook.orca": "fbmessenger",
         "com.candylink.openvpn": "candyvpn",
-        "com.sony.songpal.mdr": "sonyheadphone",
-        "com.dci.dev.androidtwelvewidgets": "androidtwelvewidgets",
-        "io.yuka.android": "yuka",
-        "free.reddit.news": "relay",
-        "com.rubenmayayo.reddit": "boost",
-        "com.andrewshu.android.reddit": "rif",
-        "com.laurencedawson.reddit_sync": "sync",
-        "ml.docilealligator.infinityforreddit": "infinity",
-        "me.ccrama.redditslide": "slide",
-        "com.onelouder.baconreader": "bacon",
     }
     revanced_app_ids = {
         key: (value, "_" + value) for key, value in _revanced_app_ids.items()
@@ -73,8 +73,6 @@ class Patches(object):
     def check_java(dry_run: bool) -> None:
         """Check if Java17 is installed."""
         try:
-            if dry_run:
-                return
             jd = subprocess.check_output(
                 ["java", "-version"], stderr=subprocess.STDOUT
             ).decode("utf-8")
@@ -93,9 +91,11 @@ class Patches(object):
         """Function to fetch all patches."""
         session = Session()
         if self.config.dry_run:
-            logger.debug("fetching all patches from local file")
-            with open("patches.json") as f:
-                patches = json.load(f)
+            url = "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
+            logger.debug(f"fetching all patches from {url} for dry run")
+            response = session.get(url)
+            handle_response(response)
+            patches = response.json()
         else:
             url = "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
             logger.debug(f"fetching all patches from {url}")
@@ -159,7 +159,7 @@ class Patches(object):
 
     def __init__(self, config: RevancedConfig) -> None:
         self.config = config
-        self.check_java(self.config.dry_run)
+        self.check_java()
         self.fetch_patches()
         if self.config.dry_run:
             self.config.apps = list(self._revanced_app_ids.values())

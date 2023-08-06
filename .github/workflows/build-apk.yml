@@ -11,11 +11,6 @@ on:
         required: false
         type: boolean
         default: true
-      PRE_RELEASE:
-        description: "Release as a pre-release"
-        required: false
-        type: boolean
-        default: false
       TELEGRAM_NO_ROOT_UPLOAD:
         description: "Upload Non Rooted APKs to Telegram"
         required: false
@@ -32,7 +27,7 @@ on:
         type: boolean
         default: false
       CLEANUP:
-        description: "Clear GitHub (Useful if Telegram upload is enabled)"
+        description: "Clear GitHub(Useful if Telegram upload is enabled)"
         required: false
         type: boolean
         default: false
@@ -46,6 +41,21 @@ on:
         description: 'Run the build with tmate debugging enabled.'
         required: false
         default: false
+      JOIN_NOTIFY:
+        type: boolean
+        description: 'Notify with JOIN API when the build is complete.'
+        required: false
+        default: true
+      PRE_RELEASE:
+        description: "Release as a pre-release"
+        required: false
+        type: boolean
+        default: false
+      CACHE_RELEASES:
+        description: "Persist older releases to not delete them on the run."
+        required: false
+        type: boolean
+        default: true
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
@@ -75,14 +85,15 @@ jobs:
       - name: Get Date
         id: get-date
         run: |
-          echo "date=$(TZ='America/Fortaleza' date +"%Y.%m.%d-%H.%M.%S")" >> $GITHUB_OUTPUT
-#          curl https://github.com/Spacellary/ReVanced-Extended-Automated-Builds/blob/changelogs/changelog.md > changelog.md
+          echo "date=$(TZ='Asia/Kolkata' date +"%Y.%m.%d-%H.%M.%S")" >> $GITHUB_OUTPUT
+          curl https://github.com/nikhilbadyal/docker-py-revanced/blob/changelogs/changelog.md > changelog.md
 
-#      - name: Delete Older Releases
-#        uses: nikhilbadyal/ghaction-rm-releases@v0.0.2
-#        with:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          RELEASE_PATTERN: "Build*"
+      - name: Delete Older Releases
+        uses: nikhilbadyal/ghaction-rm-releases@v0.0.2
+        if: ${{ inputs.CACHE_RELEASES == false }}
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_PATTERN: ".*"
 
       - name: Upload Build Artifact
         uses: ncipollo/release-action@main
@@ -98,7 +109,7 @@ jobs:
           sleep 10
 
   virustotal-scan:
-    needs: [upload-to-github]
+    needs: [ upload-to-github ]
     uses: nikhilbadyal/ghactions/.github/workflows/virustotal-scan.yml@main
     with:
       FILES: |
@@ -110,7 +121,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   upload-to-telegram:
-    needs: [upload-to-github]
+    needs: [ upload-to-github ]
     uses: nikhilbadyal/ghactions/.github/workflows/telegram-uploader.yml@main
     if: inputs.TELEGRAM_NO_ROOT_UPLOAD
     secrets:
@@ -124,7 +135,7 @@ jobs:
       SEND_STICKER: ${{ secrets.SEND_STICKER }}
 
   upload-to-telegram-root:
-    needs: [upload-to-telegram]
+    needs: [ upload-to-telegram ]
     uses: nikhilbadyal/ghactions/.github/workflows/telegram-uploader.yml@main
     if: inputs.TELEGRAM_ROOT_UPLOAD
     secrets:
@@ -139,10 +150,38 @@ jobs:
       SEND_MESSAGE: ${{ secrets.SEND_MESSAGE }}
       MESSAGE: ${{ secrets.MESSAGE_ROOT }}
 
+
   cleanup:
     name: GitHub Cleanup
     if: inputs.CLEANUP
-    needs: [upload-to-telegram]
+    needs: [ upload-to-telegram ]
     uses: ./.github/workflows/github-cleanup.yml
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+  join-notify:
+    name: Join Notification
+    if: inputs.JOIN_NOTIFY
+    needs: [ upload-to-github ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Send Join Notification
+        env:
+          JOIN_API_KEY: ${{ secrets.JOIN_API_KEY }}
+          JOIN_DEVICE_ID: ${{ secrets.JOIN_DEVICE_ID }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d '{
+              "deviceId": "'${JOIN_DEVICE_ID}'",
+              "title": "IMXEren/RVX-Builds",
+              "text": "🚀 New Release Alert: Built ReVanced Apps has just been released on GitHub. Happy coding! 💻",
+              "icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+              "smallicon": "https://i.imgur.com/Elnh5VF.png",
+              "url": "https://www.github.com/imxeren/rvx-builds/releases/latest",
+              "dismissOnTouch": "true"
+            }' \
+            "https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=${JOIN_API_KEY}"
