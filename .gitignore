@@ -7,5 +7,5 @@ venv
 /revanced-cache/
 /changelog.md
 .idea
-*.json
+/apks/*.json
 status.md

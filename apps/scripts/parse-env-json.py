@@ -51,6 +51,7 @@ def parse_json_data(env_content):
         env_dict[key] = value
 
     # Generate the JSON structure
+    extra_files_list = env_dict.get("EXTRA_FILES", "").split(",")
     existing_downloaded_apks_list = env_dict.get("EXISTING_DOWNLOADED_APKS", "").split(",")
     patch_apps_list = env_dict.get("PATCH_APPS", "").split(",")
     default_keystore = "revanced.keystore"
@@ -71,6 +72,7 @@ def parse_json_data(env_content):
                 "global_patches_dl": env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl),
                 "global_patches_json_dl": env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl),
                 "global_integrations_dl": env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
+                "extra_files": [{"url": url_name.split("@")[0], "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
                 "existing_downloaded_apks": [{"app_name": code, "app_package": package} for package, code in zip(get_pkg.packages, get_pkg.codes) if code in existing_downloaded_apks_list],
                 "patch_apps": []
             }
