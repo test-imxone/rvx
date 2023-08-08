@@ -102,6 +102,9 @@ if __name__ == "__main__":
         backup_urls = GitHubURLs(repo, backup_branch)
         json_file = backup_urls.get_env_json()
         json_data = requests.get(json_file).text
+    urls = GitHubURLs(repo, "customs")
+    json_file = urls.get_env_json()
+    json_data = requests.get(json_file).text
     output_file = "apps/.env"
 
     # Define the desired sorting key order
