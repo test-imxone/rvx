@@ -45,14 +45,19 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         integrations_dl = app_data[app_package][0].get("integrations_dl", "")
         include_patch = ",".join(app_data[app_package][0].get("include_patch_app", []))
         exclude_patch = ",".join(app_data[app_package][0].get("exclude_patch_app", []))
-        alternative_patches = ",".join(app_data[app_package][0].get("alternative_app_patches", []))
 
         # Add the keys and values to the environment dictionary
         env_dict[f"{app_name.upper()}_REALNAME"] = real_app_name
         env_dict[f"{app_name.upper()}_VERSION"] = app_version
-        env_dict[f"INCLUDE_PATCH_{app_name.upper()}"] = include_patch
-        env_dict[f"EXCLUDE_PATCH_{app_name.upper()}"] = exclude_patch
-        env_dict[f"ALTERNATIVE_{app_name.upper()}_PATCHES"] = alternative_patches
+        env_dict[f"{app_name.upper()}_KEYSTORE_FILE_NAME"] = app_keystore
+        env_dict[f"{app_name.upper()}_ARCHS_TO_BUILD"] = app_archs
+        env_dict[f"{app_name.upper()}_CLI_DL"] = cli_dl
+        env_dict[f"{app_name.upper()}_PATCHES_DL"] = patches_dl
+        env_dict[f"{app_name.upper()}_PATCHES_JSON_DL"] = patches_json_dl
+        env_dict[f"{app_name.upper()}_INTEGRATIONS_DL"] = integrations_dl
+        env_dict[f"{app_name.upper()}_INCLUDE_PATCH"] = include_patch
+        env_dict[f"{app_name.upper()}_EXCLUDE_PATCH"] = exclude_patch
+
 
         # Replace the placeholder APP_NAME with the actual app names in the key_order
         for key in key_order_placeholder:
