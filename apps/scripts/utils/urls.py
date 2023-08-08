@@ -26,3 +26,15 @@ class GitHubURLs:
     
     def get_rvx_json(self):
         return f"https://raw.githubusercontent.com/inotia00/revanced-patches/revanced-extended/patches.json"
+    
+    def get_cli_dl(self):
+        return f"https://github.com/revanced/revanced-cli"
+    
+    def get_patches_dl(self):
+        return f"https://github.com/revanced/revanced-patches"
+    
+    def get_patches_json_dl(self):
+        return f"https://github.com/revanced/revanced-patches"
+    
+    def get_integrations_dl(self):
+        return f"https://github.com/revanced/revanced-integrations"

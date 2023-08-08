@@ -13,7 +13,7 @@ def deduplicate(list):
     new_list = [seen.setdefault(x, x) for x in list if x not in seen]
     return new_list
 
-# Get info
+# Get info from .env and supported packages & its codes
 @logger.catch
 def get_pkg():
     # Get env file contents
@@ -34,38 +34,7 @@ def get_pkg():
     get_pkg.codes = deduplicate(get_pkg.codes)
     return env_content
 
-@logger.catch
-def set_patch_type():
-    def get_packages_from_patches(patches):
-        packages = set()
-        for item in patches:
-            for package in item["compatiblePackages"]:
-                packages.add(package["name"])
-        return packages
-    
-    def allign_codes(list):
-        codes = []
-        for package in list:
-            i = get_pkg.packages.index(package)
-            code = get_pkg.codes[i]
-            codes.append(code)
-        return codes
-    
-    for url in rv_json_url, rvx_json_url:
-        r = requests.get(url)
-        patches = r.json()
-        packages = get_packages_from_patches(patches)
-        if url == rv_json_url:
-            global rv_packages, rv_codes
-            rv_packages = list(set(get_pkg.packages) & set(packages))
-            rv_codes = allign_codes(rv_packages)
-        else:
-            global rvx_packages, rvx_codes
-            rvx_packages = list(set(get_pkg.packages) & set(packages))
-            rvx_codes = allign_codes(rvx_packages)
-
 # Parse json_data from env_content
-# Parsed without extra keys (EXTENDED) for every app
 @logger.catch
 def parse_json_data(env_content):
     env_dict = {}
@@ -84,14 +53,24 @@ def parse_json_data(env_content):
     # Generate the JSON structure
     existing_downloaded_apks_list = env_dict.get("EXISTING_DOWNLOADED_APKS", "").split(",")
     patch_apps_list = env_dict.get("PATCH_APPS", "").split(",")
+    default_keystore = "revanced.keystore"
+    default_archs = "arm64-v8a,armeabi-v7a,x86_64,x86"
+    default_cli_dl = urls.get_cli_dl()
+    default_patches_dl = urls.get_patches_dl()
+    default_patches_json_dl = urls.get_patches_json_dl()
+    default_integrations_dl = urls.get_integrations_dl()
+
 
     json_data = {
         "env": [
             {
                 "dry_run": env_dict.get("DRY_RUN", "False"),
-                "keystore_file_name": env_dict.get("KEYSTORE_FILE_NAME", ""),
-                "archs_to_build": env_dict.get("ARCHS_TO_BUILD", "").split(","),
-                "build_extended": env_dict.get("BUILD_EXTENDED", "False"),
+                "global_keystore_file_name": env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore),
+                "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
+                "global_cli_dl": env_dict.get("GLOBAL_CLI_DL", default_cli_dl),
+                "global_patches_dl": env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl),
+                "global_patches_json_dl": env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl),
+                "global_integrations_dl": env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
                 "existing_downloaded_apks": [{"app_name": code, "app_package": package} for package, code in zip(get_pkg.packages, get_pkg.codes) if code in existing_downloaded_apks_list],
                 "patch_apps": []
             }
@@ -106,15 +85,17 @@ def parse_json_data(env_content):
                     {
                         "app_name": code,
                         "version": env_dict.get(f"{code.upper()}_VERSION", "latest_supported"),
+                        "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", default_keystore),
+                        "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", default_archs).split(","),
+                        "cli_dl": env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl),
+                        "patches_dl": env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl),
+                        "patches_json_dl": env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl),
+                        "integrations_dl": env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
                         "include_patch_app": env_dict.get(f"INCLUDE_PATCH_{code.upper()}", "").split(","),
                         "exclude_patch_app": env_dict.get(f"EXCLUDE_PATCH_{code.upper()}", "").split(","),
                     }
                 ]
             }
-            if code in rvx_codes:
-                exclude_patch_app_extended = env_dict.get(f"EXCLUDE_PATCH_{code.upper()}_EXTENDED", "").split(",")
-                if exclude_patch_app_extended:
-                    app_data[package][0]["exclude_patch_app_extended"] = exclude_patch_app_extended
             if code in ['youtube', 'youtube_music']:
                 alternative_app_patches = env_dict.get(f"ALTERNATIVE_{code.upper()}_PATCHES", "").split(",")
                 if alternative_app_patches:
@@ -138,9 +119,7 @@ if __name__ == "__main__":
     repo = gh.get_repo()
     branch = gh.get_branch()
     backup_branch = gh.get_backup_branch()
-    urls = GitHubURLs(repo, branch)
-    rv_json_url = urls.get_rv_json()
-    rvx_json_url = urls.get_rvx_json()
+    urls = GitHubURLs(repo, "customs")
     py_file_url = urls.get_patches_py()
     env_file_url = urls.get_env()
     env_content = get_pkg()
@@ -150,7 +129,6 @@ if __name__ == "__main__":
         py_file_url = backup_urls.get_patches_py()
         env_file_url = backup_urls.get_env()
         env_content = get_pkg()
-    set_patch_type()
     json_data = parse_json_data(env_content)
     json_data = replace_empty_lists(json_data)
     json_string = json.dumps(json_data, indent=4)
