@@ -93,15 +93,16 @@ def parse_json_data(env_content):
                         "patches_dl": env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl),
                         "patches_json_dl": env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl),
                         "integrations_dl": env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
-                        "include_patch_app": env_dict.get(f"INCLUDE_PATCH_{code.upper()}", "").split(","),
-                        "exclude_patch_app": env_dict.get(f"EXCLUDE_PATCH_{code.upper()}", "").split(","),
+                        "include_patch_app": env_dict.get(f"{code.upper()}_INCLUDE_PATCH", "").split(","),
+                        "exclude_patch_app": env_dict.get(f"{code.upper()}_EXCLUDE_PATCH", "").split(","),
                     }
                 ]
             }
-            if code in ['youtube', 'youtube_music']:
-                alternative_app_patches = env_dict.get(f"ALTERNATIVE_{code.upper()}_PATCHES", "").split(",")
-                if alternative_app_patches:
-                    app_data[package][0]["alternative_app_patches"] = alternative_app_patches
+            # Removed but kept for reference
+            # if code in ['youtube', 'youtube_music']:
+            #     alternative_app_patches = env_dict.get(f"ALTERNATIVE_{code.upper()}_PATCHES", "").split(",")
+            #     if alternative_app_patches:
+            #         app_data[package][0]["alternative_app_patches"] = alternative_app_patches
             
             json_data["env"][0]["patch_apps"].append(app_data)
     return json_data

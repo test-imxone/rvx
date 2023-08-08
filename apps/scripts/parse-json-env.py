@@ -129,9 +129,8 @@ if __name__ == "__main__":
         "APP_NAME_PATCHES_DL",
         "APP_NAME_PATCHES_JSON_DL",
         "APP_NAME_INTEGRATIONS_DL",        
-        "INCLUDE_PATCH_APP_NAME",
-        "EXCLUDE_PATCH_APP_NAME",
-        "ALTERNATIVE_APP_NAME_PATCHES",
+        "APP_NAME_INCLUDE_PATCH",
+        "APP_NAME_EXCLUDE_PATCH",
     ]
 
     parse_env_json_to_env(json_data, output_file, key_order, key_order_placeholder)
