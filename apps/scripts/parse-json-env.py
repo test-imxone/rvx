@@ -13,10 +13,10 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
 
     # Extract the required values from the JSON
     env_dict = {}
+    env_dict["GLOBAL_REALNAME"] = "Global"
     env_dict["DRY_RUN"] = data["env"][0].get("dry_run", "")
-    env_dict["GLOBAL_KEYSTORE_FILE_NAME"] = data["env"][0].get("keystore_file_name", "")
-    env_dict["GLOBAL_ARCHS_TO_BUILD"] = ",".join(data["env"][0].get("archs_to_build", []))
-    env_dict["BUILD_EXTENDED"] = data["env"][0].get("build_extended", "False")
+    env_dict["GLOBAL_KEYSTORE_FILE_NAME"] = data["env"][0].get("global_keystore_file_name", "")
+    env_dict["GLOBAL_ARCHS_TO_BUILD"] = ",".join(data["env"][0].get("global_archs_to_build", []))
     env_dict["GLOBAL_CLI_DL"] = data["env"][0].get("global_cli_dl", "")
     env_dict["GLOBAL_PATCHES_DL"] = data["env"][0].get("global_patches_dl", "")
     env_dict["GLOBAL_PATCHES_JSON_DL"] = data["env"][0].get("global_patches_json_dl", "")
@@ -75,11 +75,16 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         if key.endswith("_REALNAME"):
             env_content += f"\n\n### {value}:\n"
             continue
-        if key.endswith("_VERSION") and value == "latest_supported":
+        if (key.endswith("_VERSION") and value == "latest_supported") or \
+            (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore) or \
+            (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(","))):
             env_content += f"# {key}={value}\n"
+            # if "," in value: print(str(value).split[","])
         elif value:
             env_content += f"{key}={value}\n"
-
+        else:
+            env_content += f"# {key}={value}\n"
+    env_content = env_content.strip() + "\n\n"
     wr.check_path(output_file)
     # Write the env_content to a file
     with open(output_file, "w") as file:
@@ -112,8 +117,16 @@ if __name__ == "__main__":
     json_data = requests.get(json_file).text
     output_file = "apps/.env"
 
+    default_keystore = "revanced.keystore"
+    default_archs = "arm64-v8a,armeabi-v7a,x86_64,x86"
+    default_cli_dl = urls.get_cli_dl()
+    default_patches_dl = urls.get_patches_dl()
+    default_patches_json_dl = urls.get_patches_json_dl()
+    default_integrations_dl = urls.get_integrations_dl()
+
     # Define the desired sorting key order
     key_order = [
+        "GLOBAL_REALNAME",
         "DRY_RUN",
         "GLOBAL_KEYSTORE_FILE_NAME",
         "GLOBAL_ARCHS_TO_BUILD",
