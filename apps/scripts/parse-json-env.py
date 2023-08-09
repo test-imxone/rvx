@@ -77,14 +77,15 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
             continue
         if (key.endswith("_VERSION") and value == "latest_supported") or \
             (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore) or \
-            (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(","))):
+            (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(","))) or \
+            (key.endswith("_DL") and value.lower() in {default_cli_dl, default_patches_dl, default_patches_json_dl, default_integrations_dl}):
             env_content += f"# {key}={value}\n"
             # if "," in value: print(str(value).split[","])
         elif value:
             env_content += f"{key}={value}\n"
         else:
             env_content += f"# {key}={value}\n"
-    env_content = env_content.strip() + "\n\n"
+    env_content = env_content.lstrip()
     wr.check_path(output_file)
     # Write the env_content to a file
     with open(output_file, "w") as file:
