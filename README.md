@@ -21,8 +21,8 @@
 ## Requirements
 
 - [GitHub Account](https://github.com/join) (Free)
-- Tasker ([Trial](https://tasker.joaoapps.com/download.html) -> [Paid]((https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm)))
-- Join ([Trial -> Paid]((https://play.google.com/store/apps/details?id=com.joaomgcd.join)); Optional)
+- Tasker ([Trial](https://tasker.joaoapps.com/download.html) -> [Paid](https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm))
+- Join ([Trial -> Paid](https://play.google.com/store/apps/details?id=com.joaomgcd.join); Optional)
 
 ## Usage
 
@@ -73,7 +73,7 @@ It'll be better for yourself if you have some [basic knowledge about Tasker](htt
 
 The patching is done using the CLI for both revanced & revanced-extended resources. The `/apks` folder is used as the base folder in which you can source your `options.json` or whatever files you need. Here are *incompletely* generated revanced [`options.json`](../../tree/changelogs/apps/revanced/options.json) and revanced-extended [`options.json`](../../tree/changelogs/apps/revanced-extended/options.json). Here's the list of [patch apps](../../tree/changelogs/apps/docs/README.md) which you can look into.
 
-**Note: A possible error while installing the released patched apks can be due to signature mismatch of the apk and it's installed app. In this case, either provide the same the keystore file to sign apks in `/apks` folder in GitHub repo and add `KEYSTORE_FILE_NAME=*.keystore` in `.env` file OR simply delete (make backup if possible; one-time process) those already installed non-patched (same package) or patched apps.**
+**Note: A possible error while installing the released patched apks can be due to signature mismatch of the apk and it's installed app. In this case, either provide the same the keystore file to sign apks in `/apks` folder in GitHub repository and add `KEYSTORE_FILE_NAME=*.keystore` in `.env` file OR simply delete (make backup if possible; one-time process) those already installed non-patched (same package) or patched apps.**
 
 ## Updates & Changelogs
 
