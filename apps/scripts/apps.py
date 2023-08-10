@@ -70,15 +70,18 @@ def get_packages_from_patches(patches):
 @logger.catch
 def get_last_version(json_data, package_name):
     last_versions = []
-    for obj in json_data:
-        compatible_packages = obj.get("compatiblePackages", [])
-        for package in compatible_packages:
-            if package.get("name") == package_name:
-                versions = package.get("versions", [])
-                if versions:
-                    last_versions.append(versions[-1])
-                else:
-                    last_versions.append("Any")
+    if json_data:
+        for obj in json_data:
+            compatible_packages = obj.get("compatiblePackages", [])
+            for package in compatible_packages:
+                if package.get("name") == package_name:
+                    versions = package.get("versions", [])
+                    if versions:
+                        last_versions.append(versions[-1])
+                    else:
+                        last_versions.append("Any")
+    else:
+        last_versions.append("Any")
     return last_versions
 
 @logger.catch
@@ -129,25 +132,28 @@ def make_json_data(packages, patches=[]):
                 "app_icon": app_icon,
                 "target_version": target_version,
             })
+        json_data.sort(key=lambda x: (x["app_name"] != "YouTube", x["app_name"] != "YouTube Music", x["app_name"].lower()))
     return patch_apps, json_data
 
 rv_patch_apps, rv_json_data = make_json_data(rv_packages, rv_patches)
 rvx_patch_apps, rvx_json_data = make_json_data(rvx_packages, rvx_patches)
 
 @logger.catch
-def rvx_merge_json():
-    json1_list = rvx_json_data
-    json2_list = rv_json_data
-    merged_dict = {obj['app_package']: obj for obj in json1_list}
-    for obj2 in json2_list:
-        if obj2['app_package'] not in merged_dict:
-            merged_dict[obj2['app_package']] = obj2
+def merge_jsons(*json_lists):
+    merged_dict = {}
+    for json_list in json_lists:
+        for obj in json_list:
+            app_package = obj['app_package']
+            if app_package not in merged_dict:
+                merged_dict[app_package] = obj
     merged_list = list(merged_dict.values())
     wr.write_json(rvxm_json_file, merged_list)
+    return merged_list
             
 # Step 4: Handle unmatched package names
 unadded_packages = list(all_packages - set(available_packages))
 removed_packages = list(set(available_packages) - all_packages)
+removed_patch_apps, removed_json_data = make_json_data(removed_packages, [])
 # for package_name in unadded_packages:
 #     print("Missing package:", package_name, flush=True)
 
@@ -198,4 +204,8 @@ content = (header + content).strip() + "\n"
 wr.write_md(md_file, content)
 wr.write_json(rv_json_file, rv_json_data)
 wr.write_json(rvx_json_file, rvx_json_data)
-rvx_merge_json()
+merge_jsons(
+    rvx_json_data, 
+    rv_json_data, 
+    removed_json_data,
+    )
