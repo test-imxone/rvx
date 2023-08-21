@@ -130,7 +130,7 @@ def manage_tasks(action):
 
     elif action == "build":
         print("Running the workflow: Build & Release", flush=True)
-        # trigger_workflow(access_token, repository, branch, workflow_name)
+        trigger_workflow(access_token, repository, branch, workflow_name)
         
 def manage_dls(url):
     new_url = None
@@ -160,7 +160,7 @@ def github_api_url(url):
 # Parse json_data from env_content
 def parse_env():
     env_content = get_env(branch)
-    old_patches_data = get_monitored_patches(monitored_branch, output_file)
+    # old_patches_data = get_monitored_patches(monitored_branch, output_file)
 
     env_dict = {}
     lines = env_content.strip().split('\n')
@@ -194,18 +194,18 @@ if __name__ == "__main__":
         output_file = "scripts/monitored-patches.json"
 
         default_patch_dl = "https://github.com/revanced/revanced-patches"
-        # old_patches_data = json.loads('''[
-        # {
-        #     "patches_json_dl":"https://github.com/inotia00/revanced-patches/releases/latest",
-        #     "tag_name":"v2.187.1"
-        # },
-        # {
-        #     "patches_json_dl":"https://github.com/revanced/revanced-patches/releases/latest",
-        #     "tag_name":"v2.187.01"
-        # },
-        #     {
-        #         "patches_json_dl": "hello",
-        #         "tag_name": "bye"                         
-        #     }
-        # ]''')
+        old_patches_data = json.loads('''[
+            {
+                "patches_json_dl":"https://github.com/inotia00/revanced-patches/releases/latest",
+                "tag_name":"v2.187.1"
+            },
+            {
+                "patches_json_dl":"https://github.com/revanced/revanced-patches/releases/latest",
+                "tag_name":"v2.187.01"
+            },
+            {
+                "patches_json_dl": "hello",
+                "tag_name": "bye"                         
+            }
+        ]''')
         parse_env()
