@@ -58,15 +58,16 @@ def get_patch_data(dl_list):
             "patches_json_dl": url,
             "tag_name": tag
         })
-    print("Different Patch DLs: ", "\n".join(dl_list), flush=True)
-    json_str = json.dumps(json_data, indent=4)
-    print("Latest JSON of Patch DLs:", json_str, flush=True)
-    get_patch_data.json = json_data
+    print("Different Patch DLs:\n\n", "\n ".join(dl_list), "\n", flush=True)
     return json_data
 
 def compare_tags(old_json, new_json):
     data1 = old_json
     data2 = new_json
+    compare_tags.data = new_json
+
+    print("Current JSON of Patch DLs: \n\n", json.dumps(data1, indent=4), "\n", flush=True)
+    print("Latest JSON of Patch DLs: \n\n", json.dumps(data2, indent=4), "\n", flush=True)
 
     for entry2 in data2:
         patch_dl = entry2["patches_json_dl"]
@@ -76,31 +77,33 @@ def compare_tags(old_json, new_json):
             continue
         else:
             # The iterated object isn't present
-            # Checking if the patch Dl is present
-            # patch_dl = "hello1"
+
+            # Now, checking if the patch Dl is present
             patch_obj = next((item for item in data1 if item['patches_json_dl'] == patch_dl), None)
 
+            if not patch_obj or len(data1) < len(data2):
+                # Patch Dl wasn't present or the newer patch dls are more
+                # Therefore would only update the 'monitored.json' & no build.
+                print(f"Oh, I notice some changes. Either a Patch DL was modified to: \n\n'{patch_dl}'\n", flush=True)
+                print(f"or some Patch DLs were added!!", flush=True)
+                print("So, I assume that the user would have already run the build manually.", flush=True)
+                print("Thus, the building would be done in the upcoming runs of the script.", flush=True)
+                return "write_json"
+
             # Patch DL was already present
-            # Trying to match tag
             if patch_obj:
+                # Trying to match tag
                 old_tag = patch_obj["tag_name"]
                 if old_tag != tag:
                     print(f"Update found!!\nThe following Patch Dl was updated with tag '{tag}': \n{patch_dl}\n", flush=True)
                     return "build"
-
-            # Patch Dl wasn't present and therefore would only update the 'monitored.json' & no build
-            else:
-                print(f"Oh, a Patch DL was modified!! \n{patch_dl}\n", flush=True)
-                print("I expect that the user would have already run the build manually.", flush=True)
-                print("Thus, the building would be done in the upcoming runs of the script.", flush=True)
-                return "write_json"
     
     print("The patches are already up-to-date!!", flush=True)
     return "write_json"
 
 def trigger_workflow(access_token, repository, branch, workflow_name):
     url = f"https://api.github.com/repos/{repository}/actions/workflows/{workflow_name}/dispatches"
-    
+
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/vnd.github.v3+json"
@@ -113,24 +116,28 @@ def trigger_workflow(access_token, repository, branch, workflow_name):
     
     try:
         response = requests.post(url, headers=headers, json=payload)
-        
         if response.status_code == 204:
             print("Workflow triggered successfully!", flush=True)
         else:
             print(f"Failed to trigger workflow. Status code: {response.status_code}", flush=True)
     except Exception as e:
         print("Error:", e, flush=True)
+    finally:
+        if response.status_code != 204:
+            print("Couldn't update the monitored-patches.json file!! Exiting...")
+            exit(1)
 
 def manage_tasks(action):
+    if action == "build":
+        print("Running the workflow: Build & Release", flush=True)
+        trigger_workflow(access_token, repository, branch, workflow_name)
+        action = "write_json"
+    
     if action == "write_json":
         print("Updating the 'monitored-patches.json' file.", flush=True)
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(get_patch_data.json, f, indent=4)
-
-    elif action == "build":
-        print("Running the workflow: Build & Release", flush=True)
-        trigger_workflow(access_token, repository, branch, workflow_name)
+            json.dump(compare_tags.data, f, indent=4)
         
 def manage_dls(url):
     new_url = None
@@ -160,7 +167,8 @@ def github_api_url(url):
 # Parse json_data from env_content
 def parse_env():
     env_content = get_env(branch)
-    # old_patches_data = get_monitored_patches(monitored_branch, output_file)
+    old_patches_data = get_monitored_patches(monitored_branch, output_file)
+    old_patches_dl_values = [item["patches_json_dl"] for item in old_patches_data]
 
     env_dict = {}
     lines = env_content.strip().split('\n')
@@ -177,6 +185,7 @@ def parse_env():
 
     dl_list = get_patches_dls(env_dict)
     latest_patches_data = get_patch_data(dl_list)
+    latest_patches_data = sorted(latest_patches_data, key=lambda x: (x["patches_json_dl"] in old_patches_dl_values, x["patches_json_dl"]))
     action = compare_tags(old_patches_data, latest_patches_data)
     manage_tasks(action)
 
@@ -194,18 +203,4 @@ if __name__ == "__main__":
         output_file = "scripts/monitored-patches.json"
 
         default_patch_dl = "https://github.com/revanced/revanced-patches"
-        old_patches_data = json.loads('''[
-            {
-                "patches_json_dl":"https://github.com/inotia00/revanced-patches/releases/latest",
-                "tag_name":"v2.187.1"
-            },
-            {
-                "patches_json_dl":"https://github.com/revanced/revanced-patches/releases/latest",
-                "tag_name":"v2.187.01"
-            },
-            {
-                "patches_json_dl": "hello",
-                "tag_name": "bye"                         
-            }
-        ]''')
         parse_env()

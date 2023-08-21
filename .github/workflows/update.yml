@@ -20,19 +20,6 @@ jobs:
 
       - name: Install python dependencies
         run: pip install -r requirements.txt
- 
-      # - name: Set user repository
-      #   env:
-      #     script: scripts/check-updates.py
-      #   run: |
-      #     sed -i 's@repository =.*@repository = "${{ github.repository }}"@' "$script"
-
-      # - name: Commit updated user repository
-      #   uses: stefanzweifel/git-auto-commit-action@master
-      #   with:
-      #     skip_checkout: true
-      #     file_pattern: .
-      #     commit_message: 📝 Updated current user repository
         
       - name: Check for updates
         env:
@@ -40,7 +27,7 @@ jobs:
         run: |
           python scripts/check-updates.py "${{ github.repository }}"
 
-      - name: Commit Monitored Patches Dl file
+      - name: Commit Monitored Patches DL file
         uses: stefanzweifel/git-auto-commit-action@master
         with:
           # Using a different branch to not clutter the default one with the commits.
