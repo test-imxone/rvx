@@ -1,13 +1,14 @@
 """Revanced Patches."""
+
+import contextlib
 import json
-import os
 from typing import Any, Dict, List, Tuple
 
 from loguru import logger
 
 from src.app import APP
 from src.config import RevancedConfig
-from src.utils import AppNotFound, PatchesJsonFailed
+from src.exceptions import AppNotFound, PatchesJsonLoadFailed
 
 
 class Patches(object):
@@ -60,22 +61,50 @@ class Patches(object):
     }
 
     @staticmethod
+    def get_package_name(app: str) -> str:
+        """The function `get_package_name` takes an app name as input and
+        returns the corresponding package name, or raises an exception if the
+        app is not supported.
+
+        Parameters
+        ----------
+        app : str
+            The `app` parameter is a string that represents the name of an app.
+
+        Returns
+        -------
+            a string, which is the package name corresponding to the given app name.
+        """
+        for package, app_tuple in Patches.revanced_app_ids.items():
+            if app_tuple[0] == app:
+                return package
+        raise AppNotFound(f"App {app} not supported yet.")
+
+    @staticmethod
     def support_app() -> Dict[str, str]:
-        """Return supported apps."""
+        """The function `support_app()` returns a dictionary of supported app
+        IDs.
+
+        Returns
+        -------
+            a dictionary of supported apps.
+        """
         return Patches._revanced_app_ids
 
-    def scrap_patches(self, file_name: str) -> Any:
-        """Scrap Patches."""
-        if os.path.exists(file_name):
-            with open(file_name) as f:
-                patches = json.load(f)
-            return patches
-        raise PatchesJsonFailed()
-
-    # noinspection DuplicatedCode
     def fetch_patches(self, config: RevancedConfig, app: APP) -> None:
-        """Function to fetch all patches."""
-        patches = self.scrap_patches(
+        """The function fetches patches from a JSON file and organizes them
+        based on compatibility with different applications.
+
+        Parameters
+        ----------
+        config : RevancedConfig
+            The `config` parameter is of type `RevancedConfig` and represents the configuration for the
+        application.
+        app : APP
+            The `app` parameter is of type `APP`. It represents an instance of the `APP` class.
+        """
+        patch_loader = PatchLoader()
+        patches = patch_loader.load_patches(
             f'{config.temp_folder}/{app.resource["patches_json"]}'
         )
         for app_name in (self.revanced_app_ids[x][1] for x in self.revanced_app_ids):
@@ -104,32 +133,49 @@ class Patches(object):
         self.fetch_patches(config, app)
 
     def get(self, app: str) -> Tuple[List[Dict[str, str]], str]:
-        """Get all patches for the given app.
+        """The function `get` retrieves all patches for a given application and
+        returns them along with the latest version.
 
-        :param app: Name of the application
-        :return: Patches
+        Parameters
+        ----------
+        app : str
+            The `app` parameter is a string that represents the name of the application for which you want
+        to retrieve patches.
+
+        Returns
+        -------
+            a tuple containing two elements. The first element is a list of dictionaries representing
+        patches for the given app. The second element is a string representing the version of the
+        patches.
         """
         app_names = {value[0]: value[1] for value in self.revanced_app_ids.values()}
 
         if not (app_name := app_names.get(app)):
-            raise AppNotFound(app)
+            raise AppNotFound(f"App {app} not supported yet.")
+
         patches = getattr(self, app_name)
         version = "latest"
-        try:
+        with contextlib.suppress(StopIteration):
             version = next(i["version"] for i in patches if i["version"] != "all")
-        except StopIteration:
-            pass
         return patches, version
 
-    # noinspection IncorrectFormatting
     def include_exclude_patch(
         self, app: APP, parser: Any, patches: List[Dict[str, str]]
     ) -> None:
-        """Include and exclude patches for a given app.
+        """The function `include_exclude_patch` includes and excludes patches
+        for a given app based on certain conditions.
 
-        :param app: Name of the app
-        :param parser: Parser Obj
-        :param patches: All the patches of a given app
+        Parameters
+        ----------
+        app : APP
+            The "app" parameter is the name of the app for which the patches are being included or
+        excluded.
+        parser : Any
+            The `parser` parameter is an object of type `Any`, which means it can be any type of object. It
+        is used to perform parsing operations.
+        patches : List[Dict[str, str]]
+            A list of dictionaries, where each dictionary represents a patch and contains the following
+        keys:
         """
         for patch in patches:
             normalized_patch = patch["name"].lower().replace(" ", "-")
@@ -145,11 +191,21 @@ class Patches(object):
         logger.info(app)
 
     def get_app_configs(self, app: "APP") -> List[Dict[str, str]]:
-        """Get Configurations for a given app.
+        """The function `get_app_configs` retrieves configurations for a given
+        app, including patches, version information, and whether it is
+        experimental.
 
-        :param app: Name of the application
-        :return: All Patches , Its version and whether it is
-            experimental
+        Parameters
+        ----------
+        app : "APP"
+            The "app" parameter is the name of the application for which you want to get the
+        configurations.
+
+        Returns
+        -------
+            the total_patches, which is a list of dictionaries containing information about the patches for
+        the given app. Each dictionary in the list contains the keys "Patches", "Version", and
+        "Experimental".
         """
         experiment = False
         total_patches, recommended_version = self.get(app=app.app_name)
@@ -164,3 +220,29 @@ class Patches(object):
             recommended_version = app.app_version
         app.set_recommended_version(recommended_version, experiment)
         return total_patches
+
+
+class PatchLoader:
+    """Patch Loader."""
+
+    @staticmethod
+    def load_patches(file_name: str) -> Any:
+        """The function `load_patches` loads patches from a file and returns
+        them.
+
+        Parameters
+        ----------
+        file_name : str
+            The `file_name` parameter is a string that represents the name or path of the file from which
+        the patches will be loaded.
+
+        Returns
+        -------
+            the patches loaded from the file.
+        """
+        try:
+            with open(file_name) as f:
+                patches = json.load(f)
+            return patches
+        except FileNotFoundError as e:
+            raise PatchesJsonLoadFailed("File not found", file_name=file_name) from e

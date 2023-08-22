@@ -1,25 +1,34 @@
 """Upto Down Downloader."""
 from typing import Any
 
+import requests
 from bs4 import BeautifulSoup
 from loguru import logger
-from selectolax.lexbor import LexborHTMLParser
 
+from scripts.status_check import headers
 from src.downloader.download import Downloader
-from src.utils import AppNotFound
+from src.downloader.sources import apk_sources
+from src.exceptions import UptoDownAPKDownloadFailure
+from src.utils import bs4_parser
 
 
 class UptoDown(Downloader):
     """Files downloader."""
 
-    def extract_download_link(self, page: str, app: str) -> None:
-        parser = LexborHTMLParser(self.config.session.get(page).text)
-        main_page = parser.css_first("#detail-download-button")
-        download_url = main_page.attributes["data-url"]
-        self._download(download_url, f"{app}.apk")
-        logger.debug(f"Downloaded {app} apk from upto_down_downloader in rt")
+    def extract_download_link(self, page: str, app: str) -> str:
+        r = requests.get(page, headers=headers, allow_redirects=True, timeout=60)
+        soup = BeautifulSoup(r.text, bs4_parser)
+        soup = soup.find(id="detail-download-button")
+        download_url = soup.get("data-url")
+        if not download_url:
+            raise UptoDownAPKDownloadFailure(
+                f"Unable to download {app} from uptodown.", url=page
+            )
+        file_name = f"{app}.apk"
+        self._download(download_url, file_name)
+        return file_name
 
-    def specific_version(self, app: str, version: str) -> None:
+    def specific_version(self, app: str, version: str) -> str:
         """Function to download the specified version of app from  apkmirror.
 
         :param app: Name of the application
@@ -27,9 +36,9 @@ class UptoDown(Downloader):
         :return: Version of downloaded apk
         """
         logger.debug("downloading specified version of app from uptodown.")
-        url = f"https://{app}.en.uptodown.com/android/versions"
+        url = f"{apk_sources[app]}/versions"
         html = self.config.session.get(url).text
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, bs4_parser)
         versions_list = soup.find("section", {"id": "versions"})
         download_url = None
         for version_item in versions_list.find_all("div", {"data-url": True}):
@@ -38,10 +47,11 @@ class UptoDown(Downloader):
                 download_url = version_item["data-url"]
                 break
         if download_url is None:
-            raise AppNotFound(f"Unable to get download url for {app}")
-        self.extract_download_link(download_url, app)
-        logger.debug(f"Downloaded {app} apk from upto_down_downloader in rt")
+            raise UptoDownAPKDownloadFailure(
+                f"Unable to download {app} from uptodown.", url=url
+            )
+        return self.extract_download_link(download_url, app)
 
-    def latest_version(self, app: str, **kwargs: Any) -> None:
-        page = f"https://{app}.en.uptodown.com/android/download"
-        self.extract_download_link(page, app)
+    def latest_version(self, app: str, **kwargs: Any) -> str:
+        page = f"{apk_sources[app]}/download"
+        return self.extract_download_link(page, app)
