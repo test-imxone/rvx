@@ -18,8 +18,8 @@ class GitHubURLs:
     def get_patches_py(self):
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/patches.py"
     
-    def get_config_py(self):
-        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/config.py"
+    def get_sources_py(self):
+        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/downloader/sources.py"
     
     def get_extras_json(self):
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/apps/json/extras.json"

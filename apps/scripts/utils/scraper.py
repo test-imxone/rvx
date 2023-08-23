@@ -11,8 +11,9 @@ from utils.urls import GitHubURLs
 gh = GitHubRepo()
 repo = gh.get_repo()
 branch = gh.get_branch()
+branch = "customs"
 urls = GitHubURLs(repo, branch)
-config_py_url = urls.get_config_py()
+sources_py_url = urls.get_sources_py()
 extras_json_url = urls.get_extras_json()
 
 def gplay_scrape(package_name):
@@ -33,13 +34,13 @@ def gplay_scrape(package_name):
 
 def apkm_scrape(package_name, app_code):
     apk_mirror = "https://www.apkmirror.com"
-    response = requests.get(config_py_url)
+    response = requests.get(sources_py_url)
     pattern = r'"{}": f"(.*?)",'.format(app_code)
     match = re.search(pattern, response.text)
     app_url = ""
     if match:
         app_url = match.group(1)
-        app_url = app_url.replace("{self.apk_mirror}", apk_mirror)
+        app_url = app_url.replace("{APK_MIRROR_BASE_APK_URL}", f"{apk_mirror}/apk")
     if len(app_url) == 0:
         try:
             result = get_json_data("app_package", package_name, extras_json_url)
@@ -122,7 +123,10 @@ def scraper(package_name, code_name):
                 app_name, app_icon, app_url = scraper(*param)
             break
         except Exception as e:
-            app_name, app_icon, app_url = "NA", "NA", "NA"
+            icon = "https://img.icons8.com/bubbles/64/android-os.png"
+            url = f"https://play.google.com/store/apps/details?id={package_name}"
+            name = "Unavailable"
+            app_name, app_icon, app_url = name, icon, url
             # print("ERROR:", str(e))
             continue
     return app_name, app_icon, app_url

@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 from loguru import logger
@@ -30,10 +31,12 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     patch_apps = []
     for app_data in data["env"][0].get("patch_apps", []):
         app_package = app_data["app_package"]
-        app_package_to_name = {app["app_package"]: app["app_name"] for app in apps_info}
-        real_app_name = app_package_to_name.get(app_package)
-        ## Add a fallback for app_code if app_name is unavailable
+        app_info = next(filter(lambda item: item['app_package'] == app_package, apps_info), None)
+
         app_name = list(app_data[app_package][0].values())[0]
+        real_app_name = app_info['app_name'] if app_info else None
+        if not real_app_name:
+            real_app_name = re.sub(r"[-_]", " ", app_name).capitalize()
         
         # Extract the required values
         app_version = app_data[app_package][0].get("version", "")

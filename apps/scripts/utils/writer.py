@@ -1,9 +1,11 @@
 import os
 import re
 import json
+import copy
 import pytz
 import datetime
 from unidecode import unidecode
+import utils.utils as ut
 
 def check_path(file_path):
     # Create the directories if they don't exist
@@ -19,15 +21,19 @@ def write_json(file, data):
     with open(file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+def filter_empty_data(list):
+    list = [i for i in list if i]
+    return list
+
 def make_md(json_data, title, body, type):
 
     # Sort the output data by app_name in ascending order
-    json_data.sort(key=lambda x: (x["app_name"] != "YouTube", x["app_name"] != "YouTube Music", x["app_name"].lower()))
+    ut.sort_packages(json_data)
 
     # Create md content
     content = f"### {title}\n"
     content += f"{body}\n"
-    if type == "rv" or type == "rvx":
+    if type == "supported":
         supported = True
     else:
         supported = False
@@ -82,28 +88,45 @@ def generate_toc(md_content):
     for level, title in headings:
         level_count = len(level)
         indent = "  " * (level_count - 1)
-        link = title.lower().replace(" ", "-")
+        link = title.lower().replace(":", "")
+        link = link.replace(" ", "-")
         toc += f"{indent}- [{title.strip()}](#{link})\n"
     return toc
 
-def write_supported(apps, data):
+def write_supported(apps, patches_data, data):
     content = '''## Supported Apps
 
 Here are the listed apps that are eligible to be patched using this repository's resources.
 
-**Note: Not all apps that can be patched are present in this list. Try raising an issue or a PR for me to add that app**.\n\n'''
+**Note: Not all apps that can be patched are present in the following list(s). Try raising an issue or a PR for me to add that app**.\n\n'''
 
-    titles = ['ReVanced','ReVanced Extended']
-    bodies = [
-        f'Here is a list of {apps[0]} apps that can be patched using [**ReVanced**](https://www.github.com/revanced/revanced-patches) provided officially by the **ReVanced Team**.\n\n',
-        f'''Here is a list of {apps[1]} apps that can be patched using [**ReVanced Extended (RVX)**](https://www.github.com/inotia00/revanced-patches) provided by **inotia00**. 
+    titles = []
+    bodies = []
 
-**Note: It supports fewer apps but provides more patches compared to ReVanced.**\n\n'''
-    ]
-    types = ['rv','rvx']
+    new_patches_data = copy.deepcopy(patches_data)
+    ut.numbered_duplicate_orgs(new_patches_data)
 
-    for json, title, body, type in zip(data, titles, bodies, types):
-        content += f'{make_md(json, title, body, type)}\n\n'
+    for obj in patches_data:
+        i = patches_data.index(obj)
+        new_obj = ut.find_object(obj, new_patches_data)
+        serial = apps[i]
+        patch_dl = obj["patches_json_dl"]
+        raw_url = obj["raw_url"]
+        titles.append(new_obj["org_name"])
+        info = ut.github_user(raw_url)
+        info = ut.github_user(patch_dl)
+        title = info[0]
+        subject = info[1]
+        if obj["tag_name"]:
+            title = obj["org_name"]
+
+        body = f'Here is a list of {serial} apps that can be patched using [**{subject}**]({ut.manage_dls(patch_dl)}) provided by **{title}**.\n\n'
+
+        bodies.append(body)
+
+    data_type = "supported"
+    for json_data, title, body in zip(data, titles, bodies):
+        content += f'{make_md(json_data, title, body, data_type)}\n\n'
     return content
 
 def write_unsupported(apps, data):
@@ -119,11 +142,7 @@ Here are the listed apps that are ineligible to be patched using this repository
         f'Here is a list of {apps[0]} apps that are not yet added to be able to patch them.\n\n',
         f'Here is a list of {apps[1]} apps that were previously supported but have been removed from the provided patches.\n\n'
     ]
-    types = ['unsupported','unsupported']
-    for json, title, body, type in zip(data, titles, bodies, types):
-        content += f'{make_md(json, title, body, type)}\n\n'
+    data_type = "unsupported"
+    for json_data, title, body in zip(data, titles, bodies):
+        content += f'{make_md(json_data, title, body, data_type)}\n\n'
     return content
-
-def filter_empty_data(list):
-    list = [i for i in list if i]
-    return list
