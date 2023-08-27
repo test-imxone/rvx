@@ -25,7 +25,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r apps/scripts/requirements.txt
+        run: pip install -r auto/scripts/requirements.txt
       
       #- name: Setup Chrome
        # uses: browser-actions/setup-chrome@v1.2.0
