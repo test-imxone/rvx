@@ -3,9 +3,14 @@ import json
 import requests
 from loguru import logger
 
+import patch_sources as srcs
+import utils.utils as ut
 import utils.writer as wr
 from utils.repo import GitHubRepo
-from utils.urls import GitHubURLs
+
+gh = GitHubRepo()
+repo = gh.get_repo()
+branch = gh.get_branch()
 
 # Get patches JSON
 @logger.catch
@@ -42,31 +47,28 @@ def format_options_json(opjson):
     opjson_str = re.sub(r' \},\n\s+?\{', r'}, {', opjson_str) # }, {
     return opjson_str
 
-if __name__ == "__main__":
-    gh = GitHubRepo()
-    repo = gh.get_repo()
-    branch = gh.get_branch()
-    urls = GitHubURLs(repo, branch)
-    rv_json_url = urls.get_rv_json()
-    rvx_json_url = urls.get_rvx_json()
+@logger.catch
+def main(patches_data):
 
-    urls = [
-        rv_json_url,
-        rvx_json_url,
-    ]
-
-    outs = [
-        "apps/revanced/options.json",
-        "apps/revanced-extended/options.json",
-    ]
-
-    for url, output_file in zip(urls, outs):
-        options_json = get_options_json(url)
+    for patchObj in patches_data:
+        output_file = ut.generate_path(base_path, patchObj)
+        options_json = get_options_json(patchObj["raw_url"])
         logger.debug(options_json)
         # options_json_str = json.dumps(options_json, indent=2)
         options_json_str = format_options_json(options_json)
         logger.debug(options_json_str)
-        wr.check_path(output_file)
-        with open(output_file, "w") as file:
-            file.write(options_json_str)
-        logger.info('Fetched options.json for revanced and revanced-extended')
+        wr.write_file(output_file, options_json_str)
+        logger.info(
+            f"\n\nFetched options.json for '{patchObj['org_name']}' from:"
+            f"\n{patchObj['raw_url']}\n"
+        )
+        
+
+if __name__ == "__main__":
+
+    patches_data = srcs.parse_env()
+    patches_data = sorted(patches_data, key=ut.custom_sort_key)
+    ut.numbered_duplicate_orgs(patches_data)
+
+    base_path = "auto/apps/options"
+    main(patches_data)

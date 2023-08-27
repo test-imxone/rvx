@@ -42,6 +42,8 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         app_version = app_data[app_package][0].get("version", "")
         app_keystore = app_data[app_package][0].get("keystore", "")
         app_archs = ",".join(app_data[app_package][0].get("archs", []))
+        app_dl = app_data[app_package][0].get("apk_dl", "")
+        app_dl_source = app_data[app_package][0].get("apk_dl_source", "")
         cli_dl = app_data[app_package][0].get("cli_dl", "")
         patches_dl = app_data[app_package][0].get("patches_dl", "")
         patches_json_dl = app_data[app_package][0].get("patches_json_dl", "")
@@ -51,9 +53,17 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
 
         # Add the keys and values to the environment dictionary
         env_dict[f"{app_name.upper()}_REALNAME"] = real_app_name
+        if app_dl or app_dl_source: 
+            env_dict[f"{app_name.upper()}_PACKAGE_NAME"] = app_package
         env_dict[f"{app_name.upper()}_VERSION"] = app_version
         env_dict[f"{app_name.upper()}_KEYSTORE_FILE_NAME"] = app_keystore
         env_dict[f"{app_name.upper()}_ARCHS_TO_BUILD"] = app_archs
+
+        if app_dl:
+            env_dict[f"{app_name.upper()}_DL"] = app_dl
+        elif app_dl_source:
+            env_dict[f"{app_name.upper()}_DL_SOURCE"] = app_dl_source
+
         env_dict[f"{app_name.upper()}_CLI_DL"] = cli_dl
         env_dict[f"{app_name.upper()}_PATCHES_DL"] = patches_dl
         env_dict[f"{app_name.upper()}_PATCHES_JSON_DL"] = patches_json_dl
@@ -78,14 +88,15 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         if key.endswith("_REALNAME"):
             env_content += f"\n\n### {value}:\n"
             continue
-        if (key.endswith("_VERSION") and value == "latest_supported") or \
-            (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore) or \
-            (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(","))) or \
-            (key.endswith("_DL") and value.lower() in {default_cli_dl, default_patches_dl, default_patches_json_dl, default_integrations_dl}):
+        if (key.endswith("_VERSION") and value and value == "latest_supported") or \
+            (key.endswith("_KEYSTORE_FILE_NAME") and value and value == default_keystore) or \
+            (key.endswith("_ARCHS_TO_BUILD") and value and set(value.split(",")) == set(default_archs.split(","))) or \
+            (key.endswith("_DL")  and value and value.lower() in {default_cli_dl, default_patches_dl, default_patches_json_dl, default_integrations_dl}):
             env_content += f"# {key}={value}\n"
-            # if "," in value: print(str(value).split[","])
         elif value:
             env_content += f"{key}={value}\n"
+        elif (key.endswith("_PACKAGE_NAME") or key.endswith("_DL") or key.endswith("_DL_SOURCE")):
+            continue
         else:
             env_content += f"# {key}={value}\n"
     env_content = env_content.lstrip()
@@ -94,11 +105,6 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     with open(output_file, "w") as file:
         file.write(env_content)
     logger.debug(env_content)
-
-# Get the JSON data
-# json_file = open('apps/env.json', 'r')
-# json_data = json_file.read()
-# json_file.close()
 
 
 if __name__ == "__main__":
@@ -119,7 +125,7 @@ if __name__ == "__main__":
     urls = GitHubURLs(repo, "customs")
     json_file = urls.get_env_json()
     json_data = requests.get(json_file).text
-    output_file = "apps/.env"
+    output_file = "auto/.env"
 
     default_keystore = "revanced.keystore"
     default_archs = "arm64-v8a,armeabi-v7a,x86_64,x86"
@@ -144,6 +150,9 @@ if __name__ == "__main__":
     ]
     key_order_placeholder = [
         "APP_NAME_REALNAME",
+        "APP_NAME_PACKAGE_NAME",
+        "APP_NAME_DL",
+        "APP_NAME_DL_SOURCE",
         "APP_NAME_VERSION",
         "APP_NAME_KEYSTORE_FILE_NAME",
         "APP_NAME_ARCHS_TO_BUILD",
@@ -155,4 +164,5 @@ if __name__ == "__main__":
         "APP_NAME_EXCLUDE_PATCH",
     ]
 
+    
     parse_env_json_to_env(json_data, output_file, key_order, key_order_placeholder)

@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/IMXEren/rvx-builds/main/profile/logo_big_dark-bg.svg">
-  <img alt="rvx-builds_logo" src="https://raw.githubusercontent.com/IMXEren/rvx-builds/main/profile/logo_big_light-bg.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/IMXEren/rvx-builds/main/auto/profile/logo_big_dark-bg.svg">
+  <img alt="rvx-builds_logo" src="https://raw.githubusercontent.com/IMXEren/rvx-builds/main/auto/profile/logo_big_light-bg.svg">
 </picture>
 
 # Table of Contents
@@ -71,9 +71,9 @@ It'll be better for yourself if you have some [basic knowledge about Tasker](htt
 
 ### Patching
 
-The patching is done using the CLI for both revanced & revanced-extended resources. The `/apks` folder is used as the base folder in which you can source your `options.json` or whatever files you need. Here are *incompletely* generated revanced [`options.json`](../../tree/changelogs/apps/revanced/options.json) and revanced-extended [`options.json`](../../tree/changelogs/apps/revanced-extended/options.json). Here's the list of [patch apps](../../tree/changelogs/apps/docs/README.md) which you can look into.
+The patching is done using the CLI for both revanced & revanced-extended resources. The `/apks` folder is used as the base folder in which you can source your `options.json` or whatever files you need. Here's the list of [patch apps](../../tree/changelogs/apps/docs/README.md) and *incompletely* generated [`options.json`](../../tree/changelogs/apps/apps/options) which you can look into.
 
-**Note: A possible error while installing the released patched apks can be due to signature mismatch of the apk and it's installed app. In this case, either provide the same the keystore file to sign apks in `/apks` folder in GitHub repository and add `KEYSTORE_FILE_NAME=*.keystore` in `.env` file OR simply delete (make backup if possible; one-time process) those already installed non-patched (same package) or patched apps.**
+**Note: A possible error while installing the released patched apks can be due to signature mismatch of the apk and it's installed app. In this case, either provide the same the keystore file to sign apks in `/apks` folder in GitHub repository and add `GLOBAL_KEYSTORE_FILE_NAME=*.keystore` in `.env` file OR simply delete (make backup if possible; one-time process) those already installed non-patched (same package) or patched apps.**
 
 ## Updates & Changelogs
 

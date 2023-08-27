@@ -11,6 +11,11 @@ def check_path(file_path):
     # Create the directories if they don't exist
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
+def write_file(file, content):
+    check_path(file)
+    with open(file, "w") as f:
+            f.write(content)
+
 def write_md(file, content):
     check_path(file)
     with open(file, "w", encoding="utf-8") as f:
@@ -96,7 +101,7 @@ def generate_toc(md_content):
 def write_supported(apps, patches_data, data):
     content = '''## Supported Apps
 
-Here are the listed apps that are eligible to be patched using this repository's resources.
+Here are the listed apps that are eligible to be patched from the currently used ***Custom Resources***, using this repository's resources.
 
 **Note: Not all apps that can be patched are present in the following list(s). Try raising an issue or a PR for me to add that app**.\n\n'''
 
@@ -109,6 +114,8 @@ Here are the listed apps that are eligible to be patched using this repository's
     for obj in patches_data:
         i = patches_data.index(obj)
         new_obj = ut.find_object(obj, new_patches_data)
+        options_json = ut.generate_path("auto/apps", new_obj,)
+        options_json_path = ut.generate_path.branch
         serial = apps[i]
         patch_dl = obj["patches_json_dl"]
         raw_url = obj["raw_url"]
@@ -120,7 +127,7 @@ Here are the listed apps that are eligible to be patched using this repository's
         if obj["tag_name"]:
             title = obj["org_name"]
 
-        body = f'Here is a list of {serial} apps that can be patched using [**{subject}**]({ut.manage_dls(patch_dl)}) provided by **{title}**.\n\n'
+        body = f'Here is a list of {serial} apps that can be patched using [**{subject}**]({ut.manage_dls(patch_dl)}) provided by **{title}**. Here\'s the corresponding [`options.json`]({options_json_path}).\n\n'
 
         bodies.append(body)
 

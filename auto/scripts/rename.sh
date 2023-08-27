@@ -3,8 +3,8 @@
 github_repo="IMXEren/rvx-builds"
 github_branch="changelogs"
 github_backup_branch="main"
-rename_script_1="apps/scripts/utils/repo.py"
-rename_script_2="apps/scripts/apps.py"
+rename_script_1="auto/scripts/utils/repo.py"
+rename_script_2="auto/scripts/apps.py"
 
 # Replace "py_file_url = ..." with a new URL
 sed -i "s@repo = .*@repo = \"$github_repo\"@" "$rename_script_1"

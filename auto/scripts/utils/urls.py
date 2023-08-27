@@ -10,10 +10,7 @@ class GitHubURLs:
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/.env"
     
     def get_env_json(self):
-        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/apps/json/env.json"
-    
-    def get_apps_json(self):
-        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/apps/revanced/apps.json"
+        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/auto/json/env.json"
     
     def get_patches_py(self):
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/patches.py"
@@ -22,7 +19,7 @@ class GitHubURLs:
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/downloader/sources.py"
     
     def get_extras_json(self):
-        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/apps/json/extras.json"
+        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/auto/json/extras.json"
     
     def get_rv_json(self):
         return f"https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
@@ -31,13 +28,13 @@ class GitHubURLs:
         return f"https://raw.githubusercontent.com/inotia00/revanced-patches/revanced-extended/patches.json"
     
     def get_cli_dl(self):
-        return f"https://github.com/revanced/revanced-cli"
+        return f"https://github.com/revanced/revanced-cli/releases/latest"
     
     def get_patches_dl(self):
-        return f"https://github.com/revanced/revanced-patches"
+        return f"https://github.com/revanced/revanced-patches/releases/latest"
     
     def get_patches_json_dl(self):
-        return f"https://github.com/revanced/revanced-patches"
+        return f"https://github.com/revanced/revanced-patches/releases/latest"
     
     def get_integrations_dl(self):
-        return f"https://github.com/revanced/revanced-integrations"
+        return f"https://github.com/revanced/revanced-integrations/releases/latest"

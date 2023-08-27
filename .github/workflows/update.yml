@@ -25,7 +25,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python scripts/check-updates.py "${{ github.repository }}"
+          python scripts/check_updates.py "${{ github.repository }}"
 
       - name: Commit Monitored Patches DL file
         uses: stefanzweifel/git-auto-commit-action@master

@@ -3,15 +3,16 @@ import json
 import requests
 from loguru import logger
 
+import utils.utils as ut
 import utils.writer as wr
 from utils.repo import GitHubRepo
 from utils.urls import GitHubURLs
 
-@logger.catch
-def deduplicate(list):
-    seen = {}
-    new_list = [seen.setdefault(x, x) for x in list if x not in seen]
-    return new_list
+# @logger.catch
+# def deduplicate(list):
+#     seen = {}
+#     new_list = [seen.setdefault(x, x) for x in list if x not in seen]
+#     return new_list
 
 # Get info from .env and supported packages & its codes
 @logger.catch
@@ -25,13 +26,9 @@ def get_pkg():
     python_code = response.text
     pattern = r'"([^"]+)":\s*"([^"]+)",'
     matches = re.findall(pattern, python_code)
-    get_pkg.packages = []
-    get_pkg.codes = []
+    get_pkg.dict = {}
     for package_name, code in matches:
-        get_pkg.packages.append(package_name.strip())
-        get_pkg.codes.append(code.strip())
-    get_pkg.packages = deduplicate(get_pkg.packages)
-    get_pkg.codes = deduplicate(get_pkg.codes)
+        get_pkg.dict[code.strip()] = package_name.strip()
     return env_content
 
 # Parse json_data from env_content
@@ -68,19 +65,30 @@ def parse_json_data(env_content):
                 "dry_run": env_dict.get("DRY_RUN", "False"),
                 "global_keystore_file_name": env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore),
                 "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
-                "global_cli_dl": env_dict.get("GLOBAL_CLI_DL", default_cli_dl),
-                "global_patches_dl": env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl),
-                "global_patches_json_dl": env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl),
-                "global_integrations_dl": env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
-                "extra_files": [{"url": url_name.split("@")[0], "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
-                "existing_downloaded_apks": [{"app_name": code, "app_package": package} for package, code in zip(get_pkg.packages, get_pkg.codes) if code in existing_downloaded_apks_list],
+                "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl), False),
+                "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl), False),
+                "global_patches_json_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl), False),
+                "global_integrations_dl": ut.manage_dls(env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl), False),
+                "extra_files": [{"url": ut.manage_dls(url_name.split("@")[0], False), "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
+                "existing_downloaded_apks": [{"app_name": code, "app_package": get_pkg.dict[code]} for code in existing_downloaded_apks_list],
                 "patch_apps": []
             }
         ]
     }
 
-    for package, code in zip(get_pkg.packages, get_pkg.codes):
-        if code in patch_apps_list:
+    logger.debug(get_pkg.dict)
+    for code in patch_apps_list:
+
+        unofficial_package = env_dict.get(f"{code.upper()}_PACKAGE_NAME", None)
+        package = get_pkg.dict.get(code, unofficial_package)
+        
+        apk_dl = env_dict.get(f"{code.upper()}_DL", None)
+        apk_dl_source = env_dict.get(f"{code.upper()}_DL_SOURCE", None)
+
+        include_patch = env_dict.get(f"{code.upper()}_INCLUDE_PATCH", "").lower().replace(" ", "-").split(",")
+        exclude_patch = env_dict.get(f"{code.upper()}_EXCLUDE_PATCH", "").lower().replace(" ", "-").split(",")
+
+        if package:
             app_data = {
                 "app_package": package,
                 package: [
@@ -89,22 +97,19 @@ def parse_json_data(env_content):
                         "version": env_dict.get(f"{code.upper()}_VERSION", "latest_supported"),
                         "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", default_keystore),
                         "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", default_archs).split(","),
-                        "cli_dl": env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl),
-                        "patches_dl": env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl),
-                        "patches_json_dl": env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl),
-                        "integrations_dl": env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
-                        "include_patch_app": env_dict.get(f"{code.upper()}_INCLUDE_PATCH", "").split(","),
-                        "exclude_patch_app": env_dict.get(f"{code.upper()}_EXCLUDE_PATCH", "").split(","),
+                        **({"apk_dl": apk_dl} if apk_dl else {"apk_dl_source": apk_dl_source}),
+                        "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl), False),
+                        "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl), False),
+                        "patches_json_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl), False),
+                        "integrations_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl), False),
+                        "include_patch_app": include_patch,
+                        "exclude_patch_app": exclude_patch,
                     }
                 ]
             }
-            # Removed but kept for reference
-            # if code in ['youtube', 'youtube_music']:
-            #     alternative_app_patches = env_dict.get(f"ALTERNATIVE_{code.upper()}_PATCHES", "").split(",")
-            #     if alternative_app_patches:
-            #         app_data[package][0]["alternative_app_patches"] = alternative_app_patches
             
             json_data["env"][0]["patch_apps"].append(app_data)
+
     return json_data
 
 # Replace empty lists with []

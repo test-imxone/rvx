@@ -32,7 +32,7 @@ jobs:
  
       - name: Update .py file contents
         env:
-          sed_script: apps/scripts/rename.sh
+          sed_script: auto/scripts/rename.sh
         run: |
           sed -i 's@github_repo=.*@github_repo="${{ github.repository }}"@' "$sed_script"
           chmod +x "$sed_script"
@@ -47,9 +47,9 @@ jobs:
         
       - name: Run Python script
         run: |
-          python apps/scripts/apps.py
-          python apps/scripts/get-options.py
-          python apps/scripts/parse-env-json.py
+          python auto/scripts/apps.py
+          python auto/scripts/get-options.py
+          python auto/scripts/parse-env-json.py
 
       - name: Commit Update file
         uses: stefanzweifel/git-auto-commit-action@master
@@ -64,7 +64,7 @@ jobs:
           
       - name: Parse env.json to .env
         run: |
-          python apps/scripts/parse-json-env.py
+          python auto/scripts/parse-json-env.py
 
       - name: Commit Update file
         uses: stefanzweifel/git-auto-commit-action@master

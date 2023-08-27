@@ -1,3 +1,5 @@
+import os
+import re
 from loguru import logger
 
 from utils.repo import GitHubRepo
@@ -12,16 +14,30 @@ urls = GitHubURLs(repo, branch)
 sources_py_url = urls.get_sources_py()
 extras_json_url = urls.get_extras_json()
 
+@logger.catch
+def generate_path(base, obj, branch=branch):
+    file = f'{obj["org_name"].lower()}'
+    pattern = r'[^a-zA-Z0-9_-]'
+    file = f"{re.sub(pattern, '_', file)}-options.json"
+    path = os.path.join(base, file)
+    branch_prefix = f"../../tree/{branch}"
+    generate_path.branch = os.path.join(branch_prefix, path).replace("\\", "/")
+    return path
 
 @logger.catch
-def manage_dls(url):
+def manage_dls(url, lower=True):
     new_url = url
 
     if url.startswith("https://github.com"):
         url_arr = url.split("/")
         prefix = "https://github.com"
-        suffix = "/".join(url_arr[3:4]).lower() + "/" + "/".join(url_arr[4:])
-        if not url.endswith("latest"):
+        if lower:
+            suffix = "/".join(url_arr[3:4]).lower() + "/" + "/".join(url_arr[4:])
+        else:
+            suffix = "/".join(url_arr[3:4]) + "/" + "/".join(url_arr[4:])
+        if url.endswith("releases"):
+            suffix = suffix + "/latest"
+        elif not url.endswith("latest"):
             suffix = suffix + "/releases/latest"
         new_url = f"{prefix}/{suffix}"
 

@@ -1,5 +1,4 @@
 import re
-import json
 import requests
 from loguru import logger
 
@@ -18,8 +17,8 @@ backup_branch = gh.get_backup_branch()
 urls = GitHubURLs(repo, branch)
 patches_py_url = urls.get_patches_py()
 
-rvxm_json_file = "apps/revanced-extended/apps-m.json"
-md_file = "apps/docs/README.md"
+rvxm_json_file = "auto/apps/patch_apps/apps-merged.json"
+md_file = "auto/docs/README.md"
 
 @logger.catch
 def get_available_patch_apps(url):
