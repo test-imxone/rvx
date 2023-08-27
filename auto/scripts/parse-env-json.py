@@ -70,7 +70,7 @@ def parse_json_data(env_content):
                 "global_patches_json_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl), False),
                 "global_integrations_dl": ut.manage_dls(env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl), False),
                 "extra_files": [{"url": ut.manage_dls(url_name.split("@")[0], False), "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
-                "existing_downloaded_apks": [{"app_name": code, "app_package": get_pkg.dict[code]} for code in existing_downloaded_apks_list],
+                "existing_downloaded_apks": [{"app_name": code, "app_package": get_pkg.dict[code]} for code in existing_downloaded_apks_list if code in get_pkg.dict],
                 "patch_apps": []
             }
         ]
@@ -140,6 +140,6 @@ if __name__ == "__main__":
     json_data = parse_json_data(env_content)
     json_data = replace_empty_lists(json_data)
     json_string = json.dumps(json_data, indent=4)
-    output_file = "apps/json/env.json"
+    output_file = "auto/json/env.json"
     wr.write_json(output_file, json_data)
     logger.debug(json_string)

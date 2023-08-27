@@ -138,38 +138,6 @@ def parse_env():
 
     dl_data = get_patches_dls(env_dict)
     patches_data = get_patch_data(dl_data)
-    patches_data = json.loads('''[
-{
-    "org_name": "ReVanced",
-    "tag_name": "v2.187.0",
-    "raw_url": "https://github.com/ReVanced/revanced-patches/releases/download/v2.187.0/patches.json",
-    "patches_json_dl": "https://github.com/revanced/revanced-patches/releases/latest"
-},
-{
-    "org_name": "inotia00",
-    "tag_name": "v2.187.1",
-    "raw_url": "https://github.com/inotia00/revanced-patches/releases/download/v2.187.1/patches.json",
-    "patches_json_dl": "https://github.com/inotia00/revanced-patches/releases/latest"
-},
-{
-    "org_name": "Link Resources",
-    "tag_name": null,
-    "raw_url": "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json",
-    "patches_json_dl": "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
-},
-{
-    "org_name": "Link Resources",
-    "tag_name": null,
-    "raw_url": "https://raw.githubusercontent.com/inotia00/revanced-patches/revanced-extended/patches.json",
-    "patches_json_dl": "https://raw.githubusercontent.com/inotia00/revanced-patches/revanced-extended/patches.json"
-},
-{
-    "org_name": "YT-Advanced",
-    "tag_name": "v2.188.1",
-    "raw_url": "https://github.com/YT-Advanced/ReX-patches/releases/download/v2.188.1/patches.json",
-    "patches_json_dl": "https://github.com/yt-advanced/ReX-patches/releases/latest"
-}
-]''')
     patches_data.sort(key=lambda x: (x["org_name"] != "ReVanced", x["org_name"] != "inotia00", x["org_name"].lower()))
     parse_env.patches_data = patches_data
     logger.debug((
@@ -187,40 +155,7 @@ urls = GitHubURLs(repository, "customs")
 
 env_url = urls.get_env()
 default_patch_dl = urls.get_patches_dl()
-output_file = "apps/json/patch-sources.json"
+output_file = "auto/json/patch-sources.json"
 
 if __name__ == "__main__":
     patches_data = parse_env()
-
-patches_data = json.loads('''[
-{
-    "org_name": "ReVanced",
-    "tag_name": "v2.187.0",
-    "raw_url": "https://github.com/ReVanced/revanced-patches/releases/download/v2.187.0/patches.json",
-    "patches_json_dl": "https://github.com/revanced/revanced-patches/releases/latest"
-},
-{
-    "org_name": "inotia00",
-    "tag_name": "v2.187.1",
-    "raw_url": "https://github.com/inotia00/revanced-patches/releases/download/v2.187.1/patches.json",
-    "patches_json_dl": "https://github.com/inotia00/revanced-patches/releases/latest"
-},
-{
-    "org_name": "Link Resources",
-    "tag_name": null,
-    "raw_url": "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json",
-    "patches_json_dl": "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
-},
-{
-    "org_name": "Local Resources",
-    "tag_name": null,
-    "raw_url": "https://raw.githubusercontent.com/IMXEren/rvx-builds/changelogs/apks/options.json",
-    "patches_json_dl": "local://options.json"
-},
-{
-    "org_name": "YT-Advanced",
-    "tag_name": "v2.188.1",
-    "raw_url": "https://github.com/YT-Advanced/ReX-patches/releases/download/v2.188.1/patches.json",
-    "patches_json_dl": "https://github.com/yt-advanced/ReX-patches/releases/latest"
-}
-]''')

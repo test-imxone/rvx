@@ -12,6 +12,9 @@ class GitHubURLs:
     def get_env_json(self):
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/auto/json/env.json"
     
+    def get_apps_json(self):
+        return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/auto/apps/patch_apps/apps-merged.json"
+    
     def get_patches_py(self):
         return f"https://raw.githubusercontent.com/{self.repo}/{self.branch}/src/patches.py"
     

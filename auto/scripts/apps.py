@@ -132,8 +132,8 @@ def unsupport_scrape():
                 "app_icon": app_icon,
             })
         
-        logger.info("\nUnadded Scrape: {}", unadded_scrape)
-        logger.info("\nRemoved Scrape: {}", removed_scrape)
+    logger.info("\nUnadded Scrape: {}", unadded_scrape)
+    logger.info("\nRemoved Scrape: {}", removed_scrape)
 
 @logger.catch
 def array_lengths(arrays):

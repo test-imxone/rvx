@@ -38,5 +38,5 @@ jobs:
           skip_checkout: true
           file_pattern: 'scripts/monitored-patches.json'
           commit_options: '--allow-empty'
-          commit_message: ⏫ Fetched updates for patches dl
+          commit_message: ⬆️ Fetched updates for patches dl
           push_options: '--force'
