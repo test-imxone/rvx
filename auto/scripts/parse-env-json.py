@@ -20,7 +20,7 @@ def get_pkg():
     # Get env file contents
     response = requests.get(env_file_url)
     env_content = response.text
-    
+
     # Get App Packages and Codes
     response = requests.get(py_file_url)
     python_code = response.text
@@ -65,11 +65,11 @@ def parse_json_data(env_content):
                 "dry_run": env_dict.get("DRY_RUN", "False"),
                 "global_keystore_file_name": env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore),
                 "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
-                "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl), False),
-                "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl), False),
-                "global_patches_json_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl), False),
-                "global_integrations_dl": ut.manage_dls(env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl), False),
-                "extra_files": [{"url": ut.manage_dls(url_name.split("@")[0], False), "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
+                "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl)),
+                "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl)),
+                "global_patches_json_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl)),
+                "global_integrations_dl": ut.manage_dls(env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl)),
+                "extra_files": [{"url": ut.manage_dls(url_name.split("@")[0]), "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
                 "existing_downloaded_apks": [{"app_name": code, "app_package": get_pkg.dict[code]} for code in existing_downloaded_apks_list if code in get_pkg.dict],
                 "patch_apps": []
             }
@@ -98,10 +98,10 @@ def parse_json_data(env_content):
                         "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", default_keystore),
                         "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", default_archs).split(","),
                         **({"apk_dl": apk_dl} if apk_dl else {"apk_dl_source": apk_dl_source}),
-                        "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl), False),
-                        "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl), False),
-                        "patches_json_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl), False),
-                        "integrations_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl), False),
+                        "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl)),
+                        "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl)),
+                        "patches_json_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl)),
+                        "integrations_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl)),
                         "include_patch_app": include_patch,
                         "exclude_patch_app": exclude_patch,
                     }

@@ -25,20 +25,24 @@ def generate_path(base, obj, branch=branch):
     return path
 
 @logger.catch
-def manage_dls(url, lower=True):
+def manage_dls(url, repo=repo, branch=branch):
     new_url = url
 
     if url.startswith("https://github.com"):
         url_arr = url.split("/")
+        arrL = len(url_arr)
         prefix = "https://github.com"
-        if lower:
-            suffix = "/".join(url_arr[3:4]).lower() + "/" + "/".join(url_arr[4:])
-        else:
-            suffix = "/".join(url_arr[3:4]) + "/" + "/".join(url_arr[4:])
-        if url.endswith("releases"):
-            suffix = suffix + "/latest"
-        elif not url.endswith("latest"):
+        owner = url_arr[3].lower()
+        repo = url_arr[4].lower()
+        suffix = f"{owner}/{repo}"
+
+        if arrL > 5:
+            suffix = suffix + "/" + "/".join(url_arr[5:])
+        if arrL == 5:
             suffix = suffix + "/releases/latest"
+        if arrL == 6:
+            suffix = suffix + "/latest"
+
         new_url = f"{prefix}/{suffix}"
 
     elif url.startswith("local://"):
@@ -49,7 +53,7 @@ def manage_dls(url, lower=True):
     return new_url
 
 @logger.catch
-def github_api_url(url):
+def github_api_url(url, repo=repo, branch=branch):
     api_url = url
     org_name = "Link Resources"
 
@@ -59,6 +63,8 @@ def github_api_url(url):
         suffix = "/".join(url_arr[3:])
         if "/tag/" in url:
             suffix = suffix.replace("/tag/", "/tags/")
+        elif url.endswith("releases"):
+            suffix = suffix + "/latest"
         elif not url.endswith("latest"):
             suffix = suffix + "/releases/latest"
         api_url = f"{prefix}/{suffix}"

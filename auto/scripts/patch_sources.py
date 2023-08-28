@@ -4,6 +4,7 @@ import json
 import requests
 from loguru import logger
 
+import utils.utils as ut
 import utils.writer as wr
 from utils.repo import GitHubRepo
 from utils.urls import GitHubURLs
@@ -28,10 +29,10 @@ def get_patches_dls(dict):
     dls = set()
     for key, value in dict.items():
         if key.endswith("_JSON_DL"):
-            url = manage_dls(value)
+            url = ut.manage_dls(value, repository, branch)
             dls.add(url)
     if not dls:
-        dls.add(manage_dls(default_patch_dl))
+        dls.add(ut.manage_dls(default_patch_dl))
     dl_list = list(dls)
     return dl_list
 
@@ -39,7 +40,7 @@ def get_patches_dls(dict):
 def get_patch_data(dl_list):
     json_data = []
     for url in dl_list:
-        api_url, org = github_api_url(url)
+        api_url, org = ut.github_api_url(url, repository, branch)
         raw_url, org_name, tag = get_assets(api_url, org)
         json_data.append({
             "org_name": org_name,
@@ -57,49 +58,6 @@ def manage_tasks(action):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(parse_env.patches_data, f, indent=4)
-
-@logger.catch
-def manage_dls(url):
-    new_url = url
-
-    if url.startswith("https://github.com"):
-        url_arr = url.split("/")
-        prefix = "https://github.com"
-        suffix = "/".join(url_arr[3:4]).lower() + "/" + "/".join(url_arr[4:])
-        if url.endswith("releases"):
-            suffix = suffix + "/latest"
-        elif not url.endswith("latest"):
-            suffix = suffix + "/releases/latest"
-        new_url = f"{prefix}/{suffix}"
-
-    return new_url
-
-@logger.catch
-def github_api_url(url):
-    api_url = url
-    org_name = "Link Resources"
-
-    if url.startswith("https://github.com"):
-        url_arr = url.split("/")
-        prefix = 'https://api.github.com/repos'
-        suffix = "/".join(url_arr[3:])
-        if "/tag/" in url:
-            suffix = suffix.replace("/tag/", "/tags/")
-        elif url.endswith("releases"):
-            suffix = suffix + "/latest"
-        elif not url.endswith("latest"):
-            suffix = suffix + "/releases/latest"
-        api_url = f"{prefix}/{suffix}"
-        org_name = "GitHub Resources"
-
-    elif url.startswith("local://"):
-        url_arr = url.split("/")
-        file = url_arr[-1]
-        api_url = f"https://raw.githubusercontent.com/{repository}/{branch}/apks/{file}"
-        org_name = "Local Resources"
-
-    # print(api_url, flush=True)
-    return api_url, org_name
 
 @logger.catch
 def get_assets(url, org):
@@ -151,7 +109,8 @@ def parse_env():
 gh = GitHubRepo()
 repository = gh.get_repo()
 branch = gh.get_branch() # Branch to get the env
-urls = GitHubURLs(repository, "customs")
+branch = "customs"
+urls = GitHubURLs(repository, branch)
 
 env_url = urls.get_env()
 default_patch_dl = urls.get_patches_dl()
