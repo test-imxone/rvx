@@ -2,7 +2,9 @@ import os
 import sys
 import json
 import requests
+from loguru import logger
 
+@logger.catch
 def get_env(branch):
     # Get env file contents
     url = f"https://raw.githubusercontent.com/{repository}/{branch}/.env"
@@ -19,6 +21,7 @@ def get_env(branch):
     finally:
         return content
 
+@logger.catch
 def get_monitored_patches(branch, file):
     # Get monitored-patches.json file contents
     url = f"https://raw.githubusercontent.com/{repository}/{branch}/{file}"
@@ -30,7 +33,8 @@ def get_monitored_patches(branch, file):
         data = []
     finally:
         return data
-        
+
+@logger.catch    
 def get_patches_dls(dict):
     dls = set()
     for key, value in dict.items():
@@ -43,6 +47,7 @@ def get_patches_dls(dict):
     dl_list = list(dls)
     return dl_list
 
+@logger.catch
 def get_patch_data(dl_list):
     api_dls = []
     tags = []
@@ -61,6 +66,7 @@ def get_patch_data(dl_list):
     print("Different Patch DLs:\n\n", "\n ".join(dl_list), "\n", flush=True)
     return json_data
 
+@logger.catch
 def compare_tags(old_json, new_json):
     data1 = old_json
     data2 = new_json
@@ -101,6 +107,7 @@ def compare_tags(old_json, new_json):
     print("The patches are already up-to-date!!", flush=True)
     return "write_json"
 
+@logger.catch
 def trigger_workflow(access_token, repository, branch, workflow_name):
     url = f"https://api.github.com/repos/{repository}/actions/workflows/{workflow_name}/dispatches"
 
@@ -127,6 +134,7 @@ def trigger_workflow(access_token, repository, branch, workflow_name):
             print("Couldn't update the monitored-patches.json file!! Exiting...")
             exit(1)
 
+@logger.catch
 def manage_tasks(action):
     if action == "build":
         print("Running the workflow: Build & Release", flush=True)
@@ -138,18 +146,27 @@ def manage_tasks(action):
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(compare_tags.data, f, indent=4)
-        
+
+@logger.catch
 def manage_dls(url):
     new_url = None
     if url.startswith("https://github.com"):
         url_arr = url.split("/")
+        arrL = len(url_arr)
         prefix = "https://github.com"
-        suffix = "/".join(url_arr[3:4]).lower() + "/" + "/".join(url_arr[4:])
-        if not url.endswith("latest"):
+        owner = url_arr[3].lower()
+        repo = url_arr[4].lower()
+        suffix = f"{owner}/{repo}"
+        if arrL > 5:
+            suffix = suffix + "/" + "/".join(url_arr[5:])
+        if arrL == 5:
             suffix = suffix + "/releases/latest"
+        if arrL == 6:
+            suffix = suffix + "/latest"
         new_url = f"{prefix}/{suffix}"
     return new_url
 
+@logger.catch
 def github_api_url(url):
     api_url = None
     if url.startswith("https://github.com"):
@@ -165,6 +182,7 @@ def github_api_url(url):
     return api_url
 
 # Parse json_data from env_content
+@logger.catch
 def parse_env():
     env_content = get_env(branch)
     old_patches_data = get_monitored_patches(monitored_branch, output_file)
@@ -202,5 +220,5 @@ if __name__ == "__main__":
         monitored_branch = "check-updates" # Branch to get the monitored-patches.json
         output_file = "scripts/monitored-patches.json"
 
-        default_patch_dl = "https://github.com/revanced/revanced-patches"
+        default_patch_dl = "https://github.com/revanced/revanced-patches/releases/latest"
         parse_env()
