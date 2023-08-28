@@ -1,0 +1,89 @@
+### Global:
+DRY_RUN=False
+# GLOBAL_KEYSTORE_FILE_NAME=revanced.keystore
+# GLOBAL_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+# GLOBAL_CLI_DL=https://github.com/revanced/revanced-cli
+# GLOBAL_PATCHES_DL=https://github.com/revanced/revanced-patches
+# GLOBAL_PATCHES_JSON_DL=https://github.com/revanced/revanced-patches
+# GLOBAL_INTEGRATIONS_DL=https://github.com/revanced/revanced-integrations
+PATCH_APPS=youtube,youtube_revancify_red,youtube_revancify_blue,youtube_mmt,youtube_music,reddit
+EXTRA_FILES=https://github.com/inotia00/VancedMicroG/releases/latest@VancedMicroG.apk,https://github.com/inotia00/mMicroG/releases@mmicrog.apk
+EXISTING_DOWNLOADED_APKS=twitter,youtube_revancify_red
+
+
+### YouTube:
+# YOUTUBE_VERSION=latest_supported
+YOUTUBE_KEYSTORE_FILE_NAME=youtube.keystore
+YOUTUBE_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a
+YOUTUBE_CLI_DL=https://github.com/inotia00/revanced-cli
+YOUTUBE_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# YOUTUBE_INCLUDE_PATCH=
+YOUTUBE_EXCLUDE_PATCH=custom-branding-icon-revancify-blue,custom-branding-icon-revancify-red,custom-branding-icon-mmt,custom-branding-youtube-name,enable-debug-logging
+
+
+### YouTube:
+YOUTUBE_REVANCIFY_RED_PACKAGE_NAME=com.google.android.youtube
+YOUTUBE_REVANCIFY_RED_DL_SOURCE=https://www.apkmirror.com/apk/google-inc/youtube/
+# YOUTUBE_REVANCIFY_RED_VERSION=latest_supported
+# YOUTUBE_REVANCIFY_RED_KEYSTORE_FILE_NAME=revanced.keystore
+# YOUTUBE_REVANCIFY_RED_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+YOUTUBE_REVANCIFY_RED_CLI_DL=https://github.com/inotia00/revanced-cli
+YOUTUBE_REVANCIFY_RED_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_REVANCIFY_RED_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_REVANCIFY_RED_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# YOUTUBE_REVANCIFY_RED_INCLUDE_PATCH=
+YOUTUBE_REVANCIFY_RED_EXCLUDE_PATCH=custom-branding-icon-revancify-blue,custom-branding-icon-mmt,custom-branding-youtube-name,enable-debug-logging
+
+
+### YouTube:
+YOUTUBE_REVANCIFY_BLUE_PACKAGE_NAME=com.google.android.youtube
+YOUTUBE_REVANCIFY_BLUE_DL_SOURCE=https://www.apkmirror.com/apk/google-inc/youtube/
+# YOUTUBE_REVANCIFY_BLUE_VERSION=latest_supported
+# YOUTUBE_REVANCIFY_BLUE_KEYSTORE_FILE_NAME=revanced.keystore
+# YOUTUBE_REVANCIFY_BLUE_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+YOUTUBE_REVANCIFY_BLUE_CLI_DL=https://github.com/inotia00/revanced-cli
+YOUTUBE_REVANCIFY_BLUE_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_REVANCIFY_BLUE_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_REVANCIFY_BLUE_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# YOUTUBE_REVANCIFY_BLUE_INCLUDE_PATCH=
+YOUTUBE_REVANCIFY_BLUE_EXCLUDE_PATCH=custom-branding-icon-revancify-red,custom-branding-icon-mmt,custom-branding-youtube-name,enable-debug-logging
+
+
+### YouTube:
+YOUTUBE_MMT_PACKAGE_NAME=com.google.android.youtube
+YOUTUBE_MMT_DL=https://www.apkmirror.com/apk/google-inc/youtube/
+# YOUTUBE_MMT_VERSION=latest_supported
+# YOUTUBE_MMT_KEYSTORE_FILE_NAME=revanced.keystore
+# YOUTUBE_MMT_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+YOUTUBE_MMT_CLI_DL=https://github.com/inotia00/revanced-cli
+YOUTUBE_MMT_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_MMT_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_MMT_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# YOUTUBE_MMT_INCLUDE_PATCH=
+YOUTUBE_MMT_EXCLUDE_PATCH=custom-branding-icon-revancify-blue,custom-branding-icon-revancify-red,custom-branding-youtube-name,enable-debug-logging
+
+
+### YouTube Music:
+YOUTUBE_MUSIC_VERSION=6.15.52
+# YOUTUBE_MUSIC_KEYSTORE_FILE_NAME=revanced.keystore
+# YOUTUBE_MUSIC_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+YOUTUBE_MUSIC_CLI_DL=https://github.com/inotia00/revanced-cli
+YOUTUBE_MUSIC_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_MUSIC_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+YOUTUBE_MUSIC_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# YOUTUBE_MUSIC_INCLUDE_PATCH=
+YOUTUBE_MUSIC_EXCLUDE_PATCH=custom-branding-icon-mmt,custom-branding-icon-revancify-blue,custom-branding-icon-revancify-red,custom-branding-music-name,enable-compact-dialog,enable-debug-logging
+
+
+### Reddit:
+# REDDIT_VERSION=latest_supported
+# REDDIT_KEYSTORE_FILE_NAME=revanced.keystore
+# REDDIT_ARCHS_TO_BUILD=arm64-v8a,armeabi-v7a,x86_64,x86
+REDDIT_CLI_DL=https://github.com/inotia00/revanced-cli
+REDDIT_PATCHES_DL=https://github.com/YT-Advanced/ReX-patches
+REDDIT_PATCHES_JSON_DL=https://github.com/YT-Advanced/ReX-patches
+REDDIT_INTEGRATIONS_DL=https://github.com/YT-Advanced/ReX-integrations
+# REDDIT_INCLUDE_PATCH=
+# REDDIT_EXCLUDE_PATCH=
