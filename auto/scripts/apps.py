@@ -163,11 +163,25 @@ for item in patches_data:
     org_name = item["org_name"]
     raw_url = item["raw_url"]
 
-    patches = get_patches_json(raw_url)
-    all_packages = get_packages_from_patches(patches)
-    packages = list(set(all_packages) & set(available_packages))
-    codes = get_app_code(packages)
+    try:
+        patches = get_patches_json(raw_url)
+        all_packages = get_packages_from_patches(patches)
+        packages = list(set(all_packages) & set(available_packages))
+        codes = get_app_code(packages)
+    except:
+        logger.error(
+            (
+                f"\n\nError occured while fetching patches from: \n"
+                f"\nRaw url: {raw_url}\n"
+                f"\nPatch DL: {patch_dl}\n"
+                f"\nOrganisation: {org_name}\n"
+                f"\nSkipping the scrape for these patches.json...\n"
+            )
+        )
 
+        patches_data.remove(item)
+        continue
+    
     app_data = get_package_scrape(packages)
     scrape_apps_data.append(app_data)
     universal_packages.update(all_packages)

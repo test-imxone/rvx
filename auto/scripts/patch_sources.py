@@ -15,7 +15,7 @@ def get_env(url, branch):
         response = requests.get(url)
         content = response.text
         if response.status_code != 200:
-            logger.debug(f"Failed to fetch the .env file. Status code: {response.status_code}", flush=True)
+            logger.error(f"Failed to fetch the .env file. Status code: {response.status_code}", flush=True)
             print("Assuming the .env file doesn't exist, using an empty one...", flush=True)
             content = "# Empty .env file"
     except:
@@ -31,7 +31,7 @@ def get_patches_dls(dict):
         if key.endswith("_JSON_DL"):
             url = ut.manage_dls(value, repository, branch)
             dls.add(url)
-    if not dls:
+    if not default_patch_dl in dls:
         dls.add(ut.manage_dls(default_patch_dl))
     dl_list = list(dls)
     return dl_list

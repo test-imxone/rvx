@@ -70,7 +70,7 @@ def github_api_url(url, repo=repo, branch=branch):
         api_url = f"{prefix}/{suffix}"
         org_name = "GitHub Resources"
 
-    elif url.startswith("local://"):
+    elif url.startswith("local://") or url.startswith(f"https://raw.githubusercontent.com/{repo}/{branch}"):
         url_arr = url.split("/")
         file = url_arr[-1]
         api_url = f"https://raw.githubusercontent.com/{repo}/{branch}/apks/{file}"

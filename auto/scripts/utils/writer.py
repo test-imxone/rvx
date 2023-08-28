@@ -114,7 +114,7 @@ Here are the listed apps that are eligible to be patched from the currently used
     for obj in patches_data:
         i = patches_data.index(obj)
         new_obj = ut.find_object(obj, new_patches_data)
-        options_json = ut.generate_path("auto/apps", new_obj,)
+        options_json = ut.generate_path("auto/apps/options", new_obj, "changelogs")
         options_json_path = ut.generate_path.branch
         serial = apps[i]
         patch_dl = obj["patches_json_dl"]
