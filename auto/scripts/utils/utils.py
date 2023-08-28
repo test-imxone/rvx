@@ -20,7 +20,7 @@ def generate_path(base, obj, branch=branch):
     pattern = r'[^a-zA-Z0-9_-]'
     file = f"{re.sub(pattern, '_', file)}-options.json"
     path = os.path.join(base, file)
-    branch_prefix = f"../../tree/{branch}"
+    branch_prefix = f"../../../../tree/{branch}"
     generate_path.branch = os.path.join(branch_prefix, path).replace("\\", "/")
     return path
 
