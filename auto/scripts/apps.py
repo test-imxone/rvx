@@ -156,49 +156,10 @@ if not available_packages and not app_code:
     available_packages, app_code = get_available_patch_apps(patches_py_url)
 
 
-# # Scrape app data based on the custom patches.json
-# universal_packages = set()
-# scrape_apps_data = []
-# for item in patches_data:
-#     patch_dl = item["patches_json_dl"]
-#     org_name = item["org_name"]
-#     raw_url = item["raw_url"]
-
-#     try:
-#         patches = get_patches_json(raw_url)
-#         all_packages = get_packages_from_patches(patches)
-#         packages = list(set(all_packages) & set(available_packages))
-#         codes = get_app_code(packages)
-#     except:
-#         logger.error(
-#             (
-#                 f"\n\nError occured while fetching patches from: \n"
-#                 f"\nRaw url: {raw_url}\n"
-#                 f"\nPatch DL: {patch_dl}\n"
-#                 f"\nOrganisation: {org_name}\n"
-#                 f"\nSkipping the scrape for these patches.json...\n"
-#             )
-#         )
-
-#         patches_data.remove(item)
-#         continue
-    
-#     app_data = get_package_scrape(packages)
-#     scrape_apps_data.append(app_data)
-#     universal_packages.update(all_packages)
-#     logger.info(
-#         (
-#             f"\n\nAvailable packages to be patched from '{org_name}':\n"
-#             f"\nPatch DL: {patch_dl}\n"
-#             f"\nRaw url: {raw_url}\n"
-#             f"\nPackage Names: {packages}\n"
-#             f"\nApp Codes: {codes}\n\n"
-#         )
-#     )
-
-
-# Define a function to process each item in parallel
-def process_item(item):
+# Scrape app data based on the custom patches.json
+universal_packages = set()
+scrape_apps_data = []
+for item in patches_data:
     patch_dl = item["patches_json_dl"]
     org_name = item["org_name"]
     raw_url = item["raw_url"]
@@ -211,41 +172,29 @@ def process_item(item):
     except:
         logger.error(
             (
-                f"\n\nError occurred while fetching patches from: \n"
+                f"\n\nError occured while fetching patches from: \n"
                 f"\nRaw url: {raw_url}\n"
                 f"\nPatch DL: {patch_dl}\n"
-                f"\nOrganization: {org_name}\n"
+                f"\nOrganisation: {org_name}\n"
                 f"\nSkipping the scrape for these patches.json...\n"
             )
         )
+
         patches_data.remove(item)
-        return None
+        continue
     
     app_data = get_package_scrape(packages)
-    return app_data, all_packages, packages, codes, org_name, patch_dl, raw_url
-
-# Use ThreadPoolExecutor to parallelize the loop
-scrape_apps_data = []
-universal_packages = set()
-
-if __name__ == "__main__":
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = executor.map(process_item, patches_data)
-
-        for result in results:
-            if result is not None:
-                app_data, all_packages, packages, codes, org_name, patch_dl, raw_url = result
-                scrape_apps_data.append(app_data)
-                universal_packages.update(all_packages)
-                logger.info(
-                    (
-                        f"\n\nAvailable packages to be patched from '{org_name}':\n"
-                        f"\nPatch DL: {patch_dl}\n"
-                        f"\nRaw url: {raw_url}\n"
-                        f"\nPackage Names: {packages}\n"
-                        f"\nApp Codes: {codes}\n\n"
-                    )
-                )
+    scrape_apps_data.append(app_data)
+    universal_packages.update(all_packages)
+    logger.info(
+        (
+            f"\n\nAvailable packages to be patched from '{org_name}':\n"
+            f"\nPatch DL: {patch_dl}\n"
+            f"\nRaw url: {raw_url}\n"
+            f"\nPackage Names: {packages}\n"
+            f"\nApp Codes: {codes}\n\n"
+        )
+    )
 
 
 # Generate unavailable packages.
