@@ -9,14 +9,14 @@ from loguru import logger
 
 from src.config import RevancedConfig
 from src.downloader.sources import apk_sources
-from src.exceptions import DownloadError, PatchingFailedError, UnknownError
+from src.exceptions import BuilderError, DownloadError, PatchingFailedError
 from src.utils import slugify
 
 
 class APP(object):
     """Patched APK."""
 
-    def __init__(self: Self, app_name: str, config: RevancedConfig) -> None:
+    def __init__(self: Self, app_name: str, package_name: str, config: RevancedConfig) -> None:
         """Initialize APP.
 
         Args:
@@ -24,8 +24,6 @@ class APP(object):
             app_name (str): Name of the app.
             config (RevancedConfig): Configuration object.
         """
-        from src.patches import Patches
-
         self.app_name = app_name
         self.app_version = config.env.str(f"{app_name}_VERSION".upper(), None)
         self.experiment = False
@@ -43,8 +41,7 @@ class APP(object):
         self.download_dl = config.env.str(f"{app_name}_DL".upper(), "")
         self.download_patch_resources(config)
         self.download_source = config.env.str(f"{app_name}_DL_SOURCE".upper(), "")
-        env_package_name = config.env.str(f"{app_name}_PACKAGE_NAME".upper(), None)
-        self.package_name = env_package_name or Patches.get_package_name(app_name)
+        self.package_name = package_name
 
     def download_apk_for_patching(self: Self, config: RevancedConfig) -> None:
         """Download apk to be patched."""
@@ -151,8 +148,9 @@ class APP(object):
             for resource_name, future in futures.items():
                 try:
                     self.resource[resource_name] = future.result()
-                except UnknownError as e:
-                    raise PatchingFailedError(e) from e
+                except BuilderError as e:
+                    msg = "Failed to download resource."
+                    raise PatchingFailedError(msg) from e
 
     @staticmethod
     def generate_filename(url: str) -> str:
