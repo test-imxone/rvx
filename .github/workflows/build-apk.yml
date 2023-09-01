@@ -157,6 +157,7 @@ jobs:
     needs: [ upload-to-telegram ]
     uses: ./.github/workflows/github-cleanup.yml
     secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
   join-notify:
     name: Join Notification
