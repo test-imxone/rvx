@@ -1,4 +1,4 @@
-name: Update Checker
+name: Update Checker (Deprecated)
 on:
   workflow_dispatch:
   schedule:
