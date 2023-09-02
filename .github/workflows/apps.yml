@@ -57,7 +57,7 @@ jobs:
           branch: changelogs
           create_branch: true
           skip_checkout: true
-          file_pattern: 'auto/json/env.json'
+          file_pattern: 'auto/json/env.json auto/apps/apps-merged.json'
           commit_options: '--allow-empty'
           commit_message: 📖 Parsed .env into env.json
           push_options: '--force'
