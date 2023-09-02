@@ -1,5 +1,6 @@
-import re
 import json
+import re
+
 import requests
 from loguru import logger
 
@@ -7,21 +8,29 @@ import utils.writer as wr
 from utils.repo import GitHubRepo
 from utils.urls import GitHubURLs
 
+
 @logger.catch
 def parse_env_json_to_env(json_data, output_file, key_order, key_order_placeholder):
     # Load the JSON data
     data = json.loads(json_data)
 
+    global_keystore = data["env"][0].get("global_keystore_file_name", "")
+    global_archs = ",".join(data["env"][0].get("global_archs_to_build", []))
+    global_cli_dl = data["env"][0].get("global_cli_dl", "")
+    global_patches_dl = data["env"][0].get("global_patches_dl", "")
+    global_patches_json_dl = data["env"][0].get("global_patches_json_dl", "")
+    global_integrations_dl = data["env"][0].get("global_integrations_dl", "")
+
     # Extract the required values from the JSON
     env_dict = {}
     env_dict["GLOBAL_REALNAME"] = "Global"
     env_dict["DRY_RUN"] = data["env"][0].get("dry_run", "")
-    env_dict["GLOBAL_KEYSTORE_FILE_NAME"] = data["env"][0].get("global_keystore_file_name", "")
-    env_dict["GLOBAL_ARCHS_TO_BUILD"] = ",".join(data["env"][0].get("global_archs_to_build", []))
-    env_dict["GLOBAL_CLI_DL"] = data["env"][0].get("global_cli_dl", "")
-    env_dict["GLOBAL_PATCHES_DL"] = data["env"][0].get("global_patches_dl", "")
-    env_dict["GLOBAL_PATCHES_JSON_DL"] = data["env"][0].get("global_patches_json_dl", "")
-    env_dict["GLOBAL_INTEGRATIONS_DL"] = data["env"][0].get("global_integrations_dl", "")
+    env_dict["GLOBAL_KEYSTORE_FILE_NAME"] = global_keystore
+    env_dict["GLOBAL_ARCHS_TO_BUILD"] = global_archs
+    env_dict["GLOBAL_CLI_DL"] = global_cli_dl
+    env_dict["GLOBAL_PATCHES_DL"] = global_patches_dl
+    env_dict["GLOBAL_PATCHES_JSON_DL"] = global_patches_json_dl
+    env_dict["GLOBAL_INTEGRATIONS_DL"] = global_integrations_dl
 
     extra_files = [f'{item["url"]}@{item["name"]}' for item in data["env"][0].get("extra_files", [])]
     env_dict["EXTRA_FILES"] = ",".join(extra_files)
@@ -31,13 +40,13 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     patch_apps = []
     for app_data in data["env"][0].get("patch_apps", []):
         app_package = app_data["app_package"]
-        app_info = next(filter(lambda item: item['app_package'] == app_package, apps_info), None)
+        app_info = next(filter(lambda item: item["app_package"] == app_package, apps_info), None)
 
-        app_name = list(app_data[app_package][0].values())[0]
-        real_app_name = app_info['app_name'] if app_info else None
+        app_name = next(iter(app_data[app_package][0].values()))
+        real_app_name = app_info["app_name"] if app_info else None
         if not real_app_name:
             real_app_name = re.sub(r"[-_]", " ", app_name).capitalize()
-        
+
         # Extract the required values
         app_version = app_data[app_package][0].get("version", "")
         app_keystore = app_data[app_package][0].get("keystore", "")
@@ -53,7 +62,7 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
 
         # Add the keys and values to the environment dictionary
         env_dict[f"{app_name.upper()}_REALNAME"] = real_app_name
-        if app_dl or app_dl_source: 
+        if app_dl or app_dl_source:
             env_dict[f"{app_name.upper()}_PACKAGE_NAME"] = app_package
         env_dict[f"{app_name.upper()}_VERSION"] = app_version
         env_dict[f"{app_name.upper()}_KEYSTORE_FILE_NAME"] = app_keystore
@@ -71,7 +80,6 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         env_dict[f"{app_name.upper()}_INCLUDE_PATCH"] = include_patch
         env_dict[f"{app_name.upper()}_EXCLUDE_PATCH"] = exclude_patch
 
-
         # Replace the placeholder APP_NAME with the actual app names in the key_order
         for key in key_order_placeholder:
             key = key.replace("APP_NAME", app_name.upper())
@@ -85,20 +93,51 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     env_content = ""
     for key in key_order:
         value = env_dict.get(key)
+
         if key.endswith("_REALNAME"):
             env_content += f"\n\n### {value}:\n"
             continue
-        if (key.endswith("_VERSION") and value and value == "latest_supported") or \
-            (key.endswith("_KEYSTORE_FILE_NAME") and value and value == default_keystore) or \
-            (key.endswith("_ARCHS_TO_BUILD") and value and set(value.split(",")) == set(default_archs.split(","))) or \
-            (key.endswith("_DL")  and value and value.lower() in {default_cli_dl, default_patches_dl, default_patches_json_dl, default_integrations_dl}):
+
+        if (
+            value
+            and key.startswith("GLOBAL_")
+            and (
+                (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore)
+                or (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(",")))
+                or (
+                    key.endswith("_DL")
+                    and value.lower()
+                    in {default_cli_dl, default_patches_dl, default_patches_json_dl, default_integrations_dl}
+                )
+            )
+        ):
             env_content += f"# {key}={value}\n"
+
+        elif (
+            value
+            and not key.startswith("GLOBAL_")
+            and (
+                (key.endswith("_VERSION") and value == "latest_supported")
+                or (key.endswith("_KEYSTORE_FILE_NAME") and value == global_keystore)
+                or (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(global_archs.split(",")))
+                or (
+                    key.endswith("_DL")
+                    and value.lower()
+                    in {global_cli_dl, global_patches_dl, global_patches_json_dl, global_integrations_dl}
+                )
+            )
+        ):
+            env_content += f"# {key}={value}\n"
+
         elif value:
             env_content += f"{key}={value}\n"
-        elif (key.endswith("_PACKAGE_NAME") or key.endswith("_DL") or key.endswith("_DL_SOURCE")):
+
+        elif key.endswith(("_PACKAGE_NAME", "_DL", "_DL_SOURCE")):
             continue
+
         else:
             env_content += f"# {key}={value}\n"
+
     env_content = env_content.lstrip()
     wr.check_path(output_file)
     # Write the env_content to a file
@@ -112,13 +151,13 @@ if __name__ == "__main__":
     repo = gh.get_repo()
     branch = gh.get_branch()
     backup_branch = gh.get_backup_branch()
-    urls = GitHubURLs(repo, "changelogs")
+    urls = GitHubURLs(repo, "customs")
     json_file = urls.get_env_json()
     json_data = requests.get(json_file).text
     apps_json = urls.get_apps_json()
     apps_info = requests.get(apps_json).json()
     if json_data == "404: Not Found":
-        logger.warning("Fallback to {} branch", backup_branch)
+        logger.warning(f"Fallback to {backup_branch} branch")
         backup_urls = GitHubURLs(repo, backup_branch)
         json_file = backup_urls.get_env_json()
         json_data = requests.get(json_file).text
@@ -159,10 +198,9 @@ if __name__ == "__main__":
         "APP_NAME_CLI_DL",
         "APP_NAME_PATCHES_DL",
         "APP_NAME_PATCHES_JSON_DL",
-        "APP_NAME_INTEGRATIONS_DL",        
+        "APP_NAME_INTEGRATIONS_DL",
         "APP_NAME_INCLUDE_PATCH",
         "APP_NAME_EXCLUDE_PATCH",
     ]
 
-    
     parse_env_json_to_env(json_data, output_file, key_order, key_order_placeholder)

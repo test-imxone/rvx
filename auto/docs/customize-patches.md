@@ -31,8 +31,8 @@ By default, script build the version as recommended by Revanced team.
    ```ini
    PATCH_APPS=youtube,twitter,reddit,reddit_sync
    ```
-4. If you want to exclude any patch. Set comma separated patch in `.env` file (Recommended) or in `ENVS` in `GitHub secrets` in the format. 
-   
+4. If you want to exclude any patch. Set comma separated patch in `.env` file (Recommended) or in `ENVS` in `GitHub secrets` in the format.
+
    **Note** - If patches are provided space separated, make sure you type those in **_lower case_** & replace spaces with **-** **_(hyphen)_** separated here. It means a patch named `Hey There` will be entered as `hey-there` in the above example.
    ```ini
    EXCLUDE_PATCH_<REVANCED_APPS_NAME>=<PATCH_TO_EXCLUDE-1,PATCH_TO_EXCLUDE-2>
@@ -163,9 +163,9 @@ By default, script build the version as recommended by Revanced team.
     ```
     `#` are used to comment out lines. Here `# APP_NAME_VERSION=latest_supported` is simply used to depict or to edit the patch version.
 16. Make your Action has write access. If not click here: https://github.com/OWNER/REPO/settings/actions. In the bottom give read and write access to Actions.
-    
+
     <img src="https://i.imgur.com/STSv2D3.png" width="400">
-    
+
     You may also require to [enable scheduled workflows](extras.md#scheduled-workflows) for the first time.
 17. If you want to patch reddit apps using your own Client ID. You can provide your Client ID
     as secret `REDDIT_CLIENT_ID` in `GitHub secrets`.

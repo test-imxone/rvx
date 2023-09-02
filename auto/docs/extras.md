@@ -15,7 +15,7 @@ To use Join API in conjugate with **RVX-Builds** project, add secrets `JOIN_API_
 ## Workflow Permissions
 
 Make your Action has write access. If not click here: https://github.com/OWNER/REPO/settings/actions. In the bottom give read and write access to Actions.
-    
+
 <img src="https://i.imgur.com/STSv2D3.png" width="400">
 
 ## Scheduled Workflows
@@ -24,7 +24,7 @@ Some important scheduled workflows are -
 - Get Patch Apps Info
 - Update Checker
 
-If you've forked the project, make sure that your scheduled workflows are enabled. 
+If you've forked the project, make sure that your scheduled workflows are enabled.
 - Click on `Actions` tab
 - All the workflows are listed on the left panel
 - Click on any scheduled workflow

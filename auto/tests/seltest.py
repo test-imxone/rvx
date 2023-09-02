@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 display = Display(visible=0, size=(800, 600))
 display.start()
 chrome_options = Options()
-# chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(options=chrome_options)
 
 # Navigate to a website

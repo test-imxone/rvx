@@ -1,8 +1,10 @@
+import json
 import os
 import sys
-import json
+
 import requests
 from loguru import logger
+
 
 @logger.catch
 def get_env(branch):
@@ -21,6 +23,7 @@ def get_env(branch):
     finally:
         return content
 
+
 @logger.catch
 def get_monitored_patches(branch, file):
     # Get monitored-patches.json file contents
@@ -34,7 +37,8 @@ def get_monitored_patches(branch, file):
     finally:
         return data
 
-@logger.catch    
+
+@logger.catch
 def get_patches_dls(dict):
     dls = set()
     for key, value in dict.items():
@@ -44,8 +48,8 @@ def get_patches_dls(dict):
     dls = set(filter(lambda value: value is not None, dls))
     if not dls:
         dls.add(manage_dls(default_patch_dl))
-    dl_list = list(dls)
-    return dl_list
+    return list(dls)
+
 
 @logger.catch
 def get_patch_data(dl_list):
@@ -59,12 +63,10 @@ def get_patch_data(dl_list):
         release_json = response.json()
         tag = release_json["tag_name"]
         tags.append(tag)
-        json_data.append({
-            "patches_json_dl": url,
-            "tag_name": tag
-        })
+        json_data.append({"patches_json_dl": url, "tag_name": tag})
     print("Different Patch DLs:\n\n", "\n ".join(dl_list), "\n", flush=True)
     return json_data
+
 
 @logger.catch
 def compare_tags(old_json, new_json):
@@ -85,13 +87,13 @@ def compare_tags(old_json, new_json):
             # The iterated object isn't present
 
             # Now, checking if the patch Dl is present
-            patch_obj = next((item for item in data1 if item['patches_json_dl'] == patch_dl), None)
+            patch_obj = next((item for item in data1 if item["patches_json_dl"] == patch_dl), None)
 
             if not patch_obj or len(data1) < len(data2):
                 # Patch Dl wasn't present or the newer patch dls are more
                 # Therefore would only update the 'monitored.json' & no build.
                 print(f"Oh, I notice some changes. Either a Patch DL was modified to: \n\n'{patch_dl}'\n", flush=True)
-                print(f"or some Patch DLs were added!!", flush=True)
+                print("or some Patch DLs were added!!", flush=True)
                 print("So, I assume that the user would have already run the build manually.", flush=True)
                 print("Thus, the building would be done in the upcoming runs of the script.", flush=True)
                 return "write_json"
@@ -101,26 +103,27 @@ def compare_tags(old_json, new_json):
                 # Trying to match tag
                 old_tag = patch_obj["tag_name"]
                 if old_tag != tag:
-                    print(f"Update found!!\nThe following Patch Dl was updated with tag '{tag}': \n{patch_dl}\n", flush=True)
+                    print(
+                        f"Update found!!\nThe following Patch Dl was updated with tag '{tag}': \n{patch_dl}\n",
+                        flush=True,
+                    )
                     return "build"
-    
+
     print("The patches are already up-to-date!!", flush=True)
     return "write_json"
+
 
 @logger.catch
 def trigger_workflow(access_token, repository, branch, workflow_name):
     url = f"https://api.github.com/repos/{repository}/actions/workflows/{workflow_name}/dispatches"
 
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    
+    headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/vnd.github.v3+json"}
+
     payload = {
         "ref": branch  # The branch to trigger the workflow on
         # You can add any inputs required by your workflow here
     }
-    
+
     try:
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 204:
@@ -132,7 +135,8 @@ def trigger_workflow(access_token, repository, branch, workflow_name):
     finally:
         if response.status_code != 204:
             print("Couldn't update the monitored-patches.json file!! Exiting...")
-            exit(1)
+            sys.exit(1)
+
 
 @logger.catch
 def manage_tasks(action):
@@ -140,12 +144,13 @@ def manage_tasks(action):
         print("Running the workflow: Build & Release", flush=True)
         trigger_workflow(access_token, repository, branch, workflow_name)
         action = "write_json"
-    
+
     if action == "write_json":
         print("Updating the 'monitored-patches.json' file.", flush=True)
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(compare_tags.data, f, indent=4)
+
 
 @logger.catch
 def manage_dls(url):
@@ -166,12 +171,13 @@ def manage_dls(url):
         new_url = f"{prefix}/{suffix}"
     return new_url
 
+
 @logger.catch
 def github_api_url(url):
     api_url = None
     if url.startswith("https://github.com"):
         url_arr = url.split("/")
-        prefix = 'https://api.github.com/repos'
+        prefix = "https://api.github.com/repos"
         suffix = "/".join(url_arr[3:])
         if "/tag/" in url:
             suffix = suffix.replace("/tag/", "/tags/")
@@ -181,6 +187,7 @@ def github_api_url(url):
     # print(api_url, flush=True)
     return api_url
 
+
 # Parse json_data from env_content
 @logger.catch
 def parse_env():
@@ -189,21 +196,23 @@ def parse_env():
     old_patches_dl_values = [item["patches_json_dl"] for item in old_patches_data]
 
     env_dict = {}
-    lines = env_content.strip().split('\n')
+    lines = env_content.strip().split("\n")
     for line in lines:
         line = line.strip()
-        if not line or line.startswith('#') or line.isspace():
+        if not line or line.startswith("#") or line.isspace():
             continue
-        if '#' in line:
-            line = line.split('#')[0].strip()
-        key, value = line.split('=', 1)
+        if "#" in line:
+            line = line.split("#")[0].strip()
+        key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip()
         env_dict[key] = value
 
     dl_list = get_patches_dls(env_dict)
     latest_patches_data = get_patch_data(dl_list)
-    latest_patches_data = sorted(latest_patches_data, key=lambda x: (x["patches_json_dl"] in old_patches_dl_values, x["patches_json_dl"]))
+    latest_patches_data = sorted(
+        latest_patches_data, key=lambda x: (x["patches_json_dl"] in old_patches_dl_values, x["patches_json_dl"])
+    )
     action = compare_tags(old_patches_data, latest_patches_data)
     manage_tasks(action)
 
@@ -213,11 +222,11 @@ if __name__ == "__main__":
         print("Usage: python <script.py> <USER/REPO>", flush=True)
     else:
         repository = sys.argv[1]
-        access_token = os.environ.get('GH_TOKEN')
+        access_token = os.environ.get("GH_TOKEN")
         workflow_name = "build-apk.yml"
 
-        branch = "customs" # Branch to get the env
-        monitored_branch = "check-updates" # Branch to get the monitored-patches.json
+        branch = "customs"  # Branch to get the env
+        monitored_branch = "check-updates"  # Branch to get the monitored-patches.json
         output_file = "scripts/monitored-patches.json"
 
         default_patch_dl = "https://github.com/revanced/revanced-patches/releases/latest"

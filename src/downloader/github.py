@@ -4,7 +4,6 @@ from typing import Dict, Self, Tuple
 from urllib.parse import urlparse
 
 import requests
-from lastversion import latest
 from loguru import logger
 
 from src.app import APP

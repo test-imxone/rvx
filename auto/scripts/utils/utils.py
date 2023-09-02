@@ -1,5 +1,6 @@
 import os
 import re
+
 from loguru import logger
 
 from utils.repo import GitHubRepo
@@ -9,20 +10,19 @@ from utils.urls import GitHubURLs
 gh = GitHubRepo()
 repo = gh.get_repo()
 branch = gh.get_branch()
-branch = "customs"
 urls = GitHubURLs(repo, branch)
-sources_py_url = urls.get_sources_py()
-extras_json_url = urls.get_extras_json()
+
 
 @logger.catch
-def generate_path(base, obj, branch=branch):
+def generate_path(base, obj):
     file = f'{obj["org_name"].lower()}'
-    pattern = r'[^a-zA-Z0-9_-]'
+    pattern = r"[^a-zA-Z0-9_-]"
     file = f"{re.sub(pattern, '_', file)}-options.json"
     path = os.path.join(base, file)
-    branch_prefix = f"../../../../tree/{branch}"
+    branch_prefix = ""
     generate_path.branch = os.path.join(branch_prefix, path).replace("\\", "/")
     return path
+
 
 @logger.catch
 def manage_dls(url, repo=repo, branch=branch):
@@ -52,6 +52,7 @@ def manage_dls(url, repo=repo, branch=branch):
 
     return new_url
 
+
 @logger.catch
 def github_api_url(url, repo=repo, branch=branch):
     api_url = url
@@ -59,7 +60,7 @@ def github_api_url(url, repo=repo, branch=branch):
 
     if url.startswith("https://github.com"):
         url_arr = url.split("/")
-        prefix = 'https://api.github.com/repos'
+        prefix = "https://api.github.com/repos"
         suffix = "/".join(url_arr[3:])
         if "/tag/" in url:
             suffix = suffix.replace("/tag/", "/tags/")
@@ -70,7 +71,7 @@ def github_api_url(url, repo=repo, branch=branch):
         api_url = f"{prefix}/{suffix}"
         org_name = "GitHub Resources"
 
-    elif url.startswith("local://") or url.startswith(f"https://raw.githubusercontent.com/{repo}/{branch}"):
+    elif url.startswith(("local://", f"https://raw.githubusercontent.com/{repo}/{branch}")):
         url_arr = url.split("/")
         file = url_arr[-1]
         api_url = f"https://raw.githubusercontent.com/{repo}/{branch}/apks/{file}"
@@ -78,6 +79,7 @@ def github_api_url(url, repo=repo, branch=branch):
 
     # print(api_url, flush=True)
     return api_url, org_name
+
 
 @logger.catch
 def github_user(url):
@@ -89,12 +91,13 @@ def github_user(url):
         user = url_arr[3]
         repo = url_arr[4]
 
-    elif url.startswith("local://") or url.startswith(f"https://raw.githubusercontent.com/{repo}/"):
+    elif url.startswith(("local://", f"https://raw.githubusercontent.com/{repo}/")):
         url_arr = url.split("/")
         user = "the Current Repository"
         repo = f"`{url_arr[-1]}`"
 
     return [user, repo]
+
 
 @logger.catch
 def extract_values(objects_array, key):
@@ -104,10 +107,12 @@ def extract_values(objects_array, key):
             values.append(obj[key])
     return values
 
+
 @logger.catch
 def sort_packages(json_data):
     json_data.sort(key=lambda x: (x["app_name"] != "YouTube", x["app_name"] != "YouTube Music", x["app_name"].lower()))
     return json_data
+
 
 @logger.catch
 def custom_sort_key(item):
@@ -123,6 +128,7 @@ def custom_sort_key(item):
     else:
         return (2, org_name)
 
+
 @logger.catch
 def numbered_duplicate_orgs(json_data):
     org_name_counts = {}
@@ -137,20 +143,21 @@ def numbered_duplicate_orgs(json_data):
         fixed_data.append(item)
     return fixed_data
 
+
 @logger.catch
 def find_object(obj, data):
-    org = obj['org_name']
-    tag = obj['tag_name']
-    raw = obj['raw_url']
-    dl = obj['patches_json_dl']
+    org = obj["org_name"]
+    tag = obj["tag_name"]
+    raw = obj["raw_url"]
+    dl = obj["patches_json_dl"]
 
-    condition = (
-        lambda x: 
-            x['org_name'].startswith(org) and
-            x['tag_name'] == tag and
-            x['raw_url'] == raw and 
-            x['patches_json_dl'] == dl
-    )
+    def condition(x):
+        return (
+            x["org_name"].startswith(org)
+            and x["tag_name"] == tag
+            and x["raw_url"] == raw
+            and x["patches_json_dl"] == dl
+        )
+
     filtered = filter(condition, data)
-    result = next(filtered, None)
-    return result
+    return next(filtered, None)

@@ -1,16 +1,13 @@
-import re
 import json
+import re
+
+import patch_sources as srcs
 import requests
 from loguru import logger
 
-import patch_sources as srcs
 import utils.utils as ut
 import utils.writer as wr
-from utils.repo import GitHubRepo
 
-gh = GitHubRepo()
-repo = gh.get_repo()
-branch = gh.get_branch()
 
 # Get patches JSON
 @logger.catch
@@ -38,34 +35,29 @@ def get_options_json(url):
             options_json.append({"patchName": patch_name, "options": options_list})
     return options_json
 
+
 # Convert to formatted JSON string
 @logger.catch
 def format_options_json(opjson):
     opjson_str = json.dumps(opjson, indent=1, separators=(",", " : "), ensure_ascii=False)
-    opjson_str = re.sub(r'\[\n(?:(?:\s+?)?)\{', r'[ {', opjson_str) # [ {
-    opjson_str = re.sub(r' \}\n(?:(?:\s+?)?)\]', r'} ]', opjson_str) # } ]
-    opjson_str = re.sub(r' \},\n\s+?\{', r'}, {', opjson_str) # }, {
-    return opjson_str
+    opjson_str = re.sub(r"\[\n(?:(?:\s+?)?)\{", r"[ {", opjson_str)  # [ {
+    opjson_str = re.sub(r" \}\n(?:(?:\s+?)?)\]", r"} ]", opjson_str)  # } ]
+    return re.sub(r" \},\n\s+?\{", r"}, {", opjson_str)  # }, {
+
 
 @logger.catch
 def main(patches_data):
-
     for patchObj in patches_data:
         output_file = ut.generate_path(base_path, patchObj)
         options_json = get_options_json(patchObj["raw_url"])
         logger.debug(options_json)
-        # options_json_str = json.dumps(options_json, indent=2)
         options_json_str = format_options_json(options_json)
         logger.debug(options_json_str)
         wr.write_file(output_file, options_json_str)
-        logger.info(
-            f"\n\nFetched options.json for '{patchObj['org_name']}' from:"
-            f"\n{patchObj['raw_url']}\n"
-        )
-        
+        logger.info(f"\n\nFetched options.json for '{patchObj['org_name']}' from:\n{patchObj['raw_url']}\n")
+
 
 if __name__ == "__main__":
-
     patches_data = srcs.parse_env()
     patches_data = sorted(patches_data, key=ut.custom_sort_key)
     ut.numbered_duplicate_orgs(patches_data)

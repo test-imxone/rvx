@@ -1,25 +1,25 @@
 import re
-import requests
-from loguru import logger
-import concurrent.futures
 
 import patch_sources as srcs
-import utils.writer as wr
+import requests
+from loguru import logger
+
 import utils.utils as ut
-from utils.scraper import scraper
+import utils.writer as wr
 from utils.repo import GitHubRepo
+from utils.scraper import scraper
 from utils.urls import GitHubURLs
 
 gh = GitHubRepo()
 repo = gh.get_repo()
-branch = gh.get_branch()
-branch = "customs"
-backup_branch = gh.get_backup_branch()
+branch = gh.get_backup_branch()
+backup_branch = gh.get_branch()
 urls = GitHubURLs(repo, branch)
 patches_py_url = urls.get_patches_py()
 
-rvxm_json_file = "auto/apps/patch_apps/apps-merged.json"
-md_file = "auto/docs/README.md"
+rvxm_json_file = "auto/apps/apps-merged.json"
+md_file = "auto/apps/README.md"
+
 
 @logger.catch
 def get_available_patch_apps(url):
@@ -35,6 +35,7 @@ def get_available_patch_apps(url):
         app_code.append(code.strip())
     return package_name, app_code
 
+
 @logger.catch
 def get_app_code(package):
     if isinstance(package, list):
@@ -47,11 +48,12 @@ def get_app_code(package):
         code = app_code[i]
     return code
 
+
 @logger.catch
 def get_patches_json(url):
     r = requests.get(url)
-    patches = r.json()
-    return patches
+    return r.json()
+
 
 @logger.catch
 def get_packages_from_patches(patches):
@@ -61,13 +63,17 @@ def get_packages_from_patches(patches):
             packages.add(package["name"])
     return packages
 
+
 scraped_app_data = []
+
+
 @logger.catch
 def scrape_package(package_name):
     serial = len(scraped_app_data) + 1
     logger.debug("{}. {}", serial, package_name)
     app_codename = get_app_code(package_name)
-    if not app_codename: app_codename = None
+    if not app_codename:
+        app_codename = None
     app_name, app_icon, app_url = scraper(package_name, app_codename)
     app_obj = {
         "app_package": package_name,
@@ -79,6 +85,7 @@ def scrape_package(package_name):
     scraped_app_data.append(app_obj)
     ut.sort_packages(scraped_app_data)
     return app_obj
+
 
 @logger.catch
 def get_package_scrape(packages):
@@ -93,12 +100,13 @@ def get_package_scrape(packages):
         logger.debug(package)
     return app_data
 
+
 @logger.catch
 def merge_jsons(json_lists):
     merged_dict = {}
     for json_list in json_lists:
         for obj in json_list:
-            app_package = obj['app_package']
+            app_package = obj["app_package"]
             if app_package not in merged_dict:
                 merged_dict[app_package] = obj
     merged_list = list(merged_dict.values())
@@ -106,35 +114,40 @@ def merge_jsons(json_lists):
     wr.write_json(rvxm_json_file, merged_list)
     return merged_list
 
+
 @logger.catch
 def unsupport_scrape():
-
     for package_name in unadded_packages:
         logger.info("Scraping for unadded package - {}", package_name)
         app_name, app_icon, app_url = scraper(package_name, None)
         if app_name == "Unavailable":
             logger.error("Unadded package: {}", package_name)
-        unadded_scrape.append({
+        unadded_scrape.append(
+            {
                 "app_package": package_name,
                 "app_name": app_name,
                 "app_url": app_url,
                 "app_icon": app_icon,
-            })
-        
+            }
+        )
+
     for package_name in removed_packages:
         logger.info("Scraping for removed package - {}", package_name)
         app_name, app_icon, app_url = scraper(package_name, None)
         if app_name == "Unavailable":
             logger.error("Removed package: {}", package_name)
-        removed_scrape.append({
+        removed_scrape.append(
+            {
                 "app_package": package_name,
                 "app_name": app_name,
                 "app_url": app_url,
                 "app_icon": app_icon,
-            })
-        
+            }
+        )
+
     logger.info("\nUnadded Scrape: {}", unadded_scrape)
     logger.info("\nRemoved Scrape: {}", removed_scrape)
+
 
 @logger.catch
 def array_lengths(arrays):
@@ -143,6 +156,7 @@ def array_lengths(arrays):
         lengths.append(len(array))
     return lengths
 
+
 # Get custom patch sources from .env file
 patches_data = srcs.parse_env()
 patches_data = sorted(patches_data, key=ut.custom_sort_key)
@@ -150,7 +164,7 @@ patches_data = sorted(patches_data, key=ut.custom_sort_key)
 # Get available packages from the config files.
 available_packages, app_code = get_available_patch_apps(patches_py_url)
 if not available_packages and not app_code:
-    logger.warning("Fallback to {} branch", backup_branch)
+    logger.warning(f"Fallback to {backup_branch} branch")
     backup_urls = GitHubURLs(repo, backup_branch)
     patches_py_url = backup_urls.get_patches_py()
     available_packages, app_code = get_available_patch_apps(patches_py_url)
@@ -171,29 +185,25 @@ for item in patches_data:
         codes = get_app_code(packages)
     except:
         logger.error(
-            (
-                f"\n\nError occured while fetching patches from: \n"
-                f"\nRaw url: {raw_url}\n"
-                f"\nPatch DL: {patch_dl}\n"
-                f"\nOrganisation: {org_name}\n"
-                f"\nSkipping the scrape for these patches.json...\n"
-            )
+            f"\n\nError occured while fetching patches from: \n"
+            f"\nRaw url: {raw_url}\n"
+            f"\nPatch DL: {patch_dl}\n"
+            f"\nOrganisation: {org_name}\n"
+            f"\nSkipping the scrape for these patches.json...\n"
         )
 
         patches_data.remove(item)
         continue
-    
+
     app_data = get_package_scrape(packages)
     scrape_apps_data.append(app_data)
     universal_packages.update(all_packages)
     logger.info(
-        (
-            f"\n\nAvailable packages to be patched from '{org_name}':\n"
-            f"\nPatch DL: {patch_dl}\n"
-            f"\nRaw url: {raw_url}\n"
-            f"\nPackage Names: {packages}\n"
-            f"\nApp Codes: {codes}\n\n"
-        )
+        f"\n\nAvailable packages to be patched from '{org_name}':\n"
+        f"\nPatch DL: {patch_dl}\n"
+        f"\nRaw url: {raw_url}\n"
+        f"\nPackage Names: {packages}\n"
+        f"\nApp Codes: {codes}\n\n"
     )
 
 

@@ -1,5 +1,6 @@
-import re
 import json
+import re
+
 import requests
 from loguru import logger
 
@@ -8,11 +9,6 @@ import utils.writer as wr
 from utils.repo import GitHubRepo
 from utils.urls import GitHubURLs
 
-# @logger.catch
-# def deduplicate(list):
-#     seen = {}
-#     new_list = [seen.setdefault(x, x) for x in list if x not in seen]
-#     return new_list
 
 # Get info from .env and supported packages & its codes
 @logger.catch
@@ -31,18 +27,19 @@ def get_pkg():
         get_pkg.dict[code.strip()] = package_name.strip()
     return env_content
 
+
 # Parse json_data from env_content
 @logger.catch
 def parse_json_data(env_content):
     env_dict = {}
-    lines = env_content.strip().split('\n')
+    lines = env_content.strip().split("\n")
     for line in lines:
         line = line.strip()
-        if not line or line.startswith('#') or line.isspace():
+        if not line or line.startswith("#") or line.isspace():
             continue
-        if '#' in line:
-            line = line.split('#')[0].strip()
-        key, value = line.split('=', 1)
+        if "#" in line:
+            line = line.split("#")[0].strip()
+        key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip()
         env_dict[key] = value
@@ -58,7 +55,6 @@ def parse_json_data(env_content):
     default_patches_json_dl = urls.get_patches_json_dl()
     default_integrations_dl = urls.get_integrations_dl()
 
-
     json_data = {
         "env": [
             {
@@ -67,21 +63,31 @@ def parse_json_data(env_content):
                 "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
                 "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl)),
                 "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl)),
-                "global_patches_json_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl)),
-                "global_integrations_dl": ut.manage_dls(env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl)),
-                "extra_files": [{"url": ut.manage_dls(url_name.split("@")[0]), "name": url_name.split("@")[1]} for url_name in extra_files_list if "@" in url_name],
-                "existing_downloaded_apks": [{"app_name": code, "app_package": get_pkg.dict[code]} for code in existing_downloaded_apks_list if code in get_pkg.dict],
-                "patch_apps": []
+                "global_patches_json_dl": ut.manage_dls(
+                    env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl)
+                ),
+                "global_integrations_dl": ut.manage_dls(
+                    env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl)
+                ),
+                "extra_files": [
+                    {"url": ut.manage_dls(url_name.split("@")[0]), "name": url_name.split("@")[1]}
+                    for url_name in extra_files_list
+                    if "@" in url_name
+                ],
+                "existing_downloaded_apks": [
+                    {"app_name": code, "app_package": get_pkg.dict[code]}
+                    for code in existing_downloaded_apks_list
+                    if code in get_pkg.dict
+                ],
+                "patch_apps": [],
             }
         ]
     }
 
-    logger.debug(get_pkg.dict)
     for code in patch_apps_list:
-
         unofficial_package = env_dict.get(f"{code.upper()}_PACKAGE_NAME", None)
         package = get_pkg.dict.get(code, unofficial_package)
-        
+
         apk_dl = env_dict.get(f"{code.upper()}_DL", None)
         apk_dl_source = env_dict.get(f"{code.upper()}_DL_SOURCE", None)
 
@@ -100,17 +106,22 @@ def parse_json_data(env_content):
                         **({"apk_dl": apk_dl} if apk_dl else {"apk_dl_source": apk_dl_source}),
                         "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl)),
                         "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl)),
-                        "patches_json_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl)),
-                        "integrations_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl)),
+                        "patches_json_dl": ut.manage_dls(
+                            env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl)
+                        ),
+                        "integrations_dl": ut.manage_dls(
+                            env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl)
+                        ),
                         "include_patch_app": include_patch,
                         "exclude_patch_app": exclude_patch,
                     }
-                ]
+                ],
             }
-            
+
             json_data["env"][0]["patch_apps"].append(app_data)
 
     return json_data
+
 
 # Replace empty lists with []
 @logger.catch
@@ -122,21 +133,16 @@ def replace_empty_lists(data):
     else:
         return data
 
+
 if __name__ == "__main__":
     gh = GitHubRepo()
     repo = gh.get_repo()
-    branch = gh.get_branch()
-    backup_branch = gh.get_backup_branch()
-    urls = GitHubURLs(repo, "customs")
+    branch = gh.get_backup_branch()
+    urls = GitHubURLs(repo, branch)
     py_file_url = urls.get_patches_py()
     env_file_url = urls.get_env()
     env_content = get_pkg()
-    if env_content == "404: Not Found":
-        logger.warning("Fallback to {} branch", backup_branch)
-        backup_urls = GitHubURLs(repo, backup_branch)
-        py_file_url = backup_urls.get_patches_py()
-        env_file_url = backup_urls.get_env()
-        env_content = get_pkg()
+
     json_data = parse_json_data(env_content)
     json_data = replace_empty_lists(json_data)
     json_string = json.dumps(json_data, indent=4)

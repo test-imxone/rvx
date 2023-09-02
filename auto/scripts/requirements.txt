@@ -1,8 +1,8 @@
-requests
 beautifulsoup4
-pytz
-Unidecode
 loguru
+pytz
+requests
+Unidecode
 # selenium
 # pyvirtualdisplay
 # webdriver-manager

@@ -13,12 +13,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@main
-        
+
       # - name: Configure git
       #   run: |
       #      git config --global user.name "actions-user"
       #      git config --global user.email "actions@github.com"
-      
+
       - name: Set up Python
         uses: actions/setup-python@main
         with:
@@ -26,10 +26,10 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r auto/scripts/requirements.txt
-      
+
       #- name: Setup Chrome
        # uses: browser-actions/setup-chrome@v1.2.0
- 
+
       - name: Update .py file contents
         env:
           sed_script: auto/scripts/rename.sh
@@ -44,7 +44,7 @@ jobs:
           skip_checkout: true
           file_pattern: .
           commit_message: 📝 Updated files
-        
+
       - name: Run Python script
         run: |
           python auto/scripts/apps.py
@@ -61,7 +61,7 @@ jobs:
           commit_options: '--allow-empty'
           commit_message: 📖 Parsed .env into env.json
           push_options: '--force'
-          
+
       - name: Parse env.json to .env
         run: |
           python auto/scripts/parse-json-env.py

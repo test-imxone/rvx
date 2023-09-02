@@ -79,7 +79,7 @@ The patching is done using the CLI for both revanced & revanced-extended resourc
 
 The `RVX-Builds - Project Updates` profile will let you know of any updates I push so, make sure it's enabled.
 
->> Taskernet - [**RVX-Builds**](https://taskernet.com/shares/?user=AS35m8k0QSchKA1x02SixFIhiL41a828J1qapOYfcEuyL2zSn%2FfJTN5WVSi01o18x6EAFb4%3D&id=Project%3ARVX-Builds)  
+>> Taskernet - [**RVX-Builds**](https://taskernet.com/shares/?user=AS35m8k0QSchKA1x02SixFIhiL41a828J1qapOYfcEuyL2zSn%2FfJTN5WVSi01o18x6EAFb4%3D&id=Project%3ARVX-Builds)
 [**Changelogs**](/apps/updates/CHANGELOG.md)
 
 ## Credits
