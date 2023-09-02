@@ -46,7 +46,7 @@ def get_patches_dls(dict):
             value = manage_dls(value)
             dls.add(value)
     dls = set(filter(lambda value: value is not None, dls))
-    if not dls:
+    if default_patch_dl not in dls:
         dls.add(manage_dls(default_patch_dl))
     return list(dls)
 
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         access_token = os.environ.get("GH_TOKEN")
         workflow_name = "build-apk.yml"
 
-        branch = "customs"  # Branch to get the env
+        branch = "main"  # Branch to get the env
         monitored_branch = "check-updates"  # Branch to get the monitored-patches.json
         output_file = "scripts/monitored-patches.json"
 
