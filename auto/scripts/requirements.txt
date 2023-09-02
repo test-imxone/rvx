@@ -1,0 +1,9 @@
+beautifulsoup4
+loguru
+pytz
+requests
+Unidecode
+# selenium
+# pyvirtualdisplay
+# webdriver-manager
+# undetected-chromedriver

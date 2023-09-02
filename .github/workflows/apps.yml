@@ -13,26 +13,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@main
-        
+
       # - name: Configure git
       #   run: |
       #      git config --global user.name "actions-user"
       #      git config --global user.email "actions@github.com"
-      
+
       - name: Set up Python
         uses: actions/setup-python@main
         with:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r apps/scripts/requirements.txt
-      
+        run: pip install -r auto/scripts/requirements.txt
+
       #- name: Setup Chrome
        # uses: browser-actions/setup-chrome@v1.2.0
- 
+
       - name: Update .py file contents
         env:
-          sed_script: apps/scripts/rename.sh
+          sed_script: auto/scripts/rename.sh
         run: |
           sed -i 's@github_repo=.*@github_repo="${{ github.repository }}"@' "$sed_script"
           chmod +x "$sed_script"
@@ -44,12 +44,12 @@ jobs:
           skip_checkout: true
           file_pattern: .
           commit_message: 📝 Updated files
-        
+
       - name: Run Python script
         run: |
-          python apps/scripts/apps.py
-          python apps/scripts/get-options.py
-          python apps/scripts/parse-env-json.py
+          python auto/scripts/apps.py
+          python auto/scripts/get-options.py
+          python auto/scripts/parse-env-json.py
 
       - name: Commit Update file
         uses: stefanzweifel/git-auto-commit-action@master
@@ -57,14 +57,14 @@ jobs:
           branch: changelogs
           create_branch: true
           skip_checkout: true
-          file_pattern: 'apps/json/env.json'
+          file_pattern: 'auto/json/env.json'
           commit_options: '--allow-empty'
           commit_message: 📖 Parsed .env into env.json
           push_options: '--force'
-          
+
       - name: Parse env.json to .env
         run: |
-          python apps/scripts/parse-json-env.py
+          python auto/scripts/parse-json-env.py
 
       - name: Commit Update file
         uses: stefanzweifel/git-auto-commit-action@master
