@@ -151,7 +151,7 @@ if __name__ == "__main__":
     repo = gh.get_repo()
     branch = gh.get_branch()
     backup_branch = gh.get_backup_branch()
-    urls = GitHubURLs(repo, "customs")
+    urls = GitHubURLs(repo, branch)
     json_file = urls.get_env_json()
     json_data = requests.get(json_file).text
     apps_json = urls.get_apps_json()
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         backup_urls = GitHubURLs(repo, backup_branch)
         json_file = backup_urls.get_env_json()
         json_data = requests.get(json_file).text
-    urls = GitHubURLs(repo, "customs")
+    urls = GitHubURLs(repo, branch)
     json_file = urls.get_env_json()
     json_data = requests.get(json_file).text
     output_file = "auto/.env"
