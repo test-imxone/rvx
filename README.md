@@ -73,7 +73,7 @@ It'll be better for yourself if you have some [basic knowledge about Tasker](htt
 
 **Note:**
    1. Initialization of the tasks may take sometime at some-points due to heavy scripting process. Kindly don't worry about all that. Also, make sure that you've a decent internet connection speed.
-   2. [Read here](/auto/docs/tasker-automation.md), for more details on the automation functionalities.
+   2. [Read here](/auto/docs/tasker-automation.md) for more details on the automation functionalities.
 
 ### Patching
 
