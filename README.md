@@ -24,9 +24,9 @@ The Tool now supports resource config at app level. You can patch A app with X r
 
 ## Requirements
 
-- [GitHub Account](https://github.com/join) (Free)
-- Tasker ([Trial](https://tasker.joaoapps.com/download.html) -> [Paid](https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm))
-- Join ([Trial -> Paid](https://play.google.com/store/apps/details?id=com.joaomgcd.join); Optional)
+- [**GitHub Account**](https://github.com/join) (Free)
+- **Tasker** ([Trial](https://tasker.joaoapps.com/download.html) -> [Paid](https://play.google.com/store/apps/details?id=net.dinglisch.android.taskerm))
+- **Join** ([Trial -> Paid](https://play.google.com/store/apps/details?id=com.joaomgcd.join); Optional)
 
 ## Usage
 
