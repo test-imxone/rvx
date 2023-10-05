@@ -59,8 +59,10 @@ def get_patches_json(url):
 def get_packages_from_patches(patches):
     packages = set()
     for item in patches:
-        for package in item["compatiblePackages"]:
-            packages.add(package["name"])
+        # For non-universal patches
+        if item["compatiblePackages"] is not None:
+            for package in item["compatiblePackages"]:
+                packages.add(package["name"])
     return packages
 
 
@@ -128,7 +130,7 @@ def unsupport_scrape():
                 "app_name": app_name,
                 "app_url": app_url,
                 "app_icon": app_icon,
-            }
+            },
         )
 
     for package_name in removed_packages:
@@ -142,7 +144,7 @@ def unsupport_scrape():
                 "app_name": app_name,
                 "app_url": app_url,
                 "app_icon": app_icon,
-            }
+            },
         )
 
     logger.info("\nUnadded Scrape: {}", unadded_scrape)
@@ -189,7 +191,7 @@ for item in patches_data:
             f"\nRaw url: {raw_url}\n"
             f"\nPatch DL: {patch_dl}\n"
             f"\nOrganisation: {org_name}\n"
-            f"\nSkipping the scrape for these patches.json...\n"
+            f"\nSkipping the scrape for these patches.json...\n",
         )
 
         patches_data.remove(item)
@@ -203,7 +205,7 @@ for item in patches_data:
         f"\nPatch DL: {patch_dl}\n"
         f"\nRaw url: {raw_url}\n"
         f"\nPackage Names: {packages}\n"
-        f"\nApp Codes: {codes}\n\n"
+        f"\nApp Codes: {codes}\n\n",
     )
 
 

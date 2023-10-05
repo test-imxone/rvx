@@ -27,7 +27,7 @@ def get_options_json(url):
         options_list = []
         for option in options:
             key = option["key"]
-            value = option.get("value", None)
+            value = option.get("default", None)
             options_list.append({"key": key, "value": value})
         obj_tuple = (patch_name, json.dumps(options_list, sort_keys=True))
         if obj_tuple not in unique_objects:

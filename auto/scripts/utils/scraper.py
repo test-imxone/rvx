@@ -74,7 +74,7 @@ def apksos_scrape(package_name):
     response = requests.get(app_url)
     soup = BeautifulSoup(response.text, "html.parser")
     app_name_element = soup.select_one(
-        "body > div > div > div > div > div.col-sm-12.col-md-8 > div:nth-child(2) > div:nth-child(1)"
+        "body > div > div > div > div > div.col-sm-12.col-md-8 > div:nth-child(2) > div:nth-child(1)",
     )
     app_icon_element = soup.select_one("body > div img")
     if app_icon_element:

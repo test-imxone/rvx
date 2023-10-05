@@ -64,10 +64,10 @@ def parse_json_data(env_content):
                 "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl)),
                 "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl)),
                 "global_patches_json_dl": ut.manage_dls(
-                    env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl)
+                    env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl),
                 ),
                 "global_integrations_dl": ut.manage_dls(
-                    env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl)
+                    env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
                 ),
                 "extra_files": [
                     {"url": ut.manage_dls(url_name.split("@")[0]), "name": url_name.split("@")[1]}
@@ -80,8 +80,8 @@ def parse_json_data(env_content):
                     if code in get_pkg.dict
                 ],
                 "patch_apps": [],
-            }
-        ]
+            },
+        ],
     }
 
     for code in patch_apps_list:
@@ -107,14 +107,14 @@ def parse_json_data(env_content):
                         "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl)),
                         "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl)),
                         "patches_json_dl": ut.manage_dls(
-                            env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl)
+                            env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl),
                         ),
                         "integrations_dl": ut.manage_dls(
-                            env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl)
+                            env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
                         ),
                         "include_patch_app": include_patch,
                         "exclude_patch_app": exclude_patch,
-                    }
+                    },
                 ],
             }
 

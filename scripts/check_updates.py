@@ -120,7 +120,7 @@ def trigger_workflow(access_token, repository, branch, workflow_name):
     headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/vnd.github.v3+json"}
 
     payload = {
-        "ref": branch  # The branch to trigger the workflow on
+        "ref": branch,  # The branch to trigger the workflow on
         # You can add any inputs required by your workflow here
     }
 
@@ -211,7 +211,8 @@ def parse_env():
     dl_list = get_patches_dls(env_dict)
     latest_patches_data = get_patch_data(dl_list)
     latest_patches_data = sorted(
-        latest_patches_data, key=lambda x: (x["patches_json_dl"] in old_patches_dl_values, x["patches_json_dl"])
+        latest_patches_data,
+        key=lambda x: (x["patches_json_dl"] in old_patches_dl_values, x["patches_json_dl"]),
     )
     action = compare_tags(old_patches_data, latest_patches_data)
     manage_tasks(action)

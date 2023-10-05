@@ -50,7 +50,7 @@ def get_patch_data(dl_list):
                 "tag_name": tag,
                 "raw_url": raw_url,
                 "patches_json_dl": url,
-            }
+            },
         )
     return json_data
 
