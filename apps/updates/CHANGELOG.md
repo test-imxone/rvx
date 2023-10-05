@@ -1,16 +1,5 @@
-# Changelog
+###### MOVED TO
 
-The changelogs listed here are combined from both this repository and the **RVX-Builds** tasker project. The versions are just dates with format `YY.MM.DD`.
+https://github.com/IMXEren/rvx-builds/blob/main/auto/updates/CHANGELOG.md
 
-## List of Versions
-
-<details><summary>Click to expand</summary>
-
-- [v23.08.04](#v230804)
-
-</details>
-
-## v23.08.04
-
-- Initial Release of **rvx-builds** repository.
-- Initial Release of **RVX-Builds** Tasker project.
+###### This document is deprecated and would be removed in next update

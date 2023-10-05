@@ -2,16 +2,18 @@
 
 The changelogs listed here are combined from both this repository and the **RVX-Builds** tasker project. The versions are just release dates with format `YY.MM.DD`.
 
+>> Here's the [**RVX-Builds**](https://taskernet.com/shares/?user=AS35m8k0QSchKA1x02SixFIhiL41a828J1qapOYfcEuyL2zSn%2FfJTN5WVSi01o18x6EAFb4%3D&id=Project%3ARVX-Builds) taskernet link.
+
 ## List of Versions
 
 <details><summary>Click to expand</summary>
 
-- [v23.09.04](#v230904)
+- [v23.10.04](#v231004)
 - [v23.08.04](#v230804)
 
 </details>
 
-## v23.09.04
+## v23.10.04
 
 ### ⭐ Custom Patch Resources
 
