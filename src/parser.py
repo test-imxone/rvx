@@ -110,13 +110,24 @@ class Parser(object):
         patches_dict: dict[str, str],
     ) -> None:
         """The function `include_exclude_patch` includes and excludes patches for a given app."""
-        for patch in patches:
-            normalized_patch = patch["name"].lower().replace(" ", "-")
-            self.include(normalized_patch) if normalized_patch not in app.exclude_request else self.exclude(
-                normalized_patch,
-            )
-        for normalized_patch in app.include_request:
-            self.include(normalized_patch) if normalized_patch not in patches_dict["universal_patch"] else ()
+        if app.space_formatted:
+            for patch in patches:
+                normalized_patch = patch["name"].lower().replace(" ", "-")
+                self.include(patch["name"]) if normalized_patch not in app.exclude_request else self.exclude(
+                    patch["name"],
+                )
+            for normalized_patch in app.include_request:
+                self.include(normalized_patch.lower().replace("-", " ")) if normalized_patch not in patches_dict[
+                    "universal_patch"
+                ] else ()
+        else:
+            for patch in patches:
+                normalized_patch = patch["name"].lower().replace(" ", "-")
+                self.include(normalized_patch) if normalized_patch not in app.exclude_request else self.exclude(
+                    normalized_patch,
+                )
+            for normalized_patch in app.include_request:
+                self.include(normalized_patch) if normalized_patch not in patches_dict["universal_patch"] else ()
 
     @staticmethod
     def is_new_cli(cli_path: Path) -> tuple[bool, str]:
@@ -173,7 +184,7 @@ class Parser(object):
             logger.debug("Using experimental features")
             args.append(exp)
         args[1::2] = map(self.config.temp_folder.joinpath, args[1::2])
-        if self.config.old_key and "v4" in version:
+        if app.old_key and "v4" in version:
             # https://github.com/ReVanced/revanced-cli/issues/272#issuecomment-1740587534
             old_key_flags = ["--alias=alias", "--keystore-entry-password=ReVanced", "--keystore-password=ReVanced"]
             args.extend(old_key_flags)

@@ -27,9 +27,11 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
 | [EXTRA_FILES](#extra-files)                              |    Extra files apk to upload in GitHub upload.    | None                                                                                                     |
 | [GLOBAL_CLI_DL*](#global-resources)                      |     DL for CLI to be used for patching apps.      | [Revanced CLI](https://github.com/revanced/revanced-cli)                                                 |
 | [GLOBAL_PATCHES_DL*](#global-resources)                  |   DL for Patches to be used for patching apps.    | [Revanced Patches](https://github.com/revanced/revanced-patches)                                         |
+| [GLOBAL_SPACE_FORMATTED_PATCHES*](#global-resources)     |       Whether patches are space formatted.        | True                                                                                                     |
 | [GLOBAL_PATCHES_JSON_DL*](#global-resources)             | DL for Patches Json to be used for patching apps. | [Revanced Patches](https://github.com/revanced/revanced-patches)                                         |
 | [GLOBAL_INTEGRATIONS_DL*](#global-resources)             | DL for Integrations to be used for patching apps. | [Revanced Integrations](https://github.com/revanced/revanced-integrations)                               |
 | [GLOBAL_KEYSTORE_FILE_NAME*](#global-keystore-file-name) |       Key file to be used for signing apps        | [Builder's own key](https://github.com/IMXEren/rvx-builds/blob/main/apks/revanced.keystore)              |
+| [GLOBAL_OLD_KEY*](#global-keystore-file-name)            | Whether key was generated with cli v4(new) or not | False ([Builder's own key (v3)](https://github.com/IMXEren/rvx-builds/blob/main/apks/revanced.keystore)) |
 | [GLOBAL_ARCHS_TO_BUILD*](#global-archs-to-build)         |         Arch to keep in the patched apk.          | All                                                                                                      |
 | [REDDIT_CLIENT_ID](#reddit-client)                       |       Reddit Client ID to patch reddit apps       | None                                                                                                     |
 | [VT_API_KEY](#virus-total)                               |           Virus Total Key to scan APKs            | None                                                                                                     |
@@ -49,7 +51,9 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
 | [*APP_NAME*_PATCHES_JSON_DL](#global-resources)             | DL for Patches Json to be used for patching **APP_NAME**. | GLOBAL_PATCHES_JSON_DL         |
 | [*APP_NAME*_INTEGRATIONS_DL](#global-resources)             | DL for Integrations to be used for patching **APP_NAME**. | GLOBAL_INTEGRATIONS_DL         |
 | [*APP_NAME*_KEYSTORE_FILE_NAME](#global-keystore-file-name) |       Key file to be used for signing **APP_NAME**.       | GLOBAL_KEYSTORE_FILE_NAME      |
+| [*APP_NAME*_OLD_KEY](#global-keystore-file-name)            |  Whether key used was generated with cli v4 (new) or not. | GLOBAL_OLD_KEY                 |
 | [*APP_NAME*_ARCHS_TO_BUILD](#global-archs-to-build)         |         Arch to keep in the patched **APP_NAME**.         | GLOBAL_ARCHS_TO_BUILD          |
+| [*APP_NAME*_SPACE_FORMATTED_PATCHES](#global-resources)     |    Whether patches are space formatted.   **APP_NAME**.   | GLOBAL_SPACE_FORMATTED_PATCHES |
 | [*APP_NAME*_EXCLUDE_PATCH*](#custom-exclude-patching)       |     Patches to exclude while patching  **APP_NAME**.      | []                             |
 | [*APP_NAME*_INCLUDE_PATCH**](#custom-include-patching)      |     Patches to include while patching  **APP_NAME**.      | []                             |
 | [*APP_NAME*_VERSION](#app-version)                          |         Version to use for download for patching.         | Recommended by patch resources |
@@ -152,6 +156,8 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
    If you have want to provide resource locally in the apks folder. You can specify that by mentioning filename
    prefixed with `local://`.<br>
    _Note_ - The link provided must be direct DLs, unless they are from GitHub.
+   _Note_ - Some of the patch sources (like inotia00) may provide **-** seperated patches while some (ReVanced) shifted to
+   Space formatted patches. Use `SPACE_FORMATTED_PATCHES` to define the type of patches.
 8. <a id="global-keystore-file-name"></a>If you don't want to use default keystore. You can provide your own by
    placing it inside `/apks` folder. And adding the filename of `keystore-file` in `.env` file or in `ENVS` in `GitHub
    secrets` in the format -
@@ -164,10 +170,14 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
    ```ini
     YOUTUBE_KEYSTORE_FILE_NAME=youtube.keystore
    ```
-   Note - If you are using your own keystore (i.e. not the default `apks/revanced.keystore`). Add
+   Note - If you are using your own keystore and it was generated with cli v4, add
    Example:
-   ```dotenv
-    OLD_KEY=False
+   ```ini
+    GLOBAL_OLD_KEY=False
+   ```
+   If you are using different key for different apps. You need to specify at app level.
+    ```ini
+    YOUTUBE_OLD_KEY=False
    ```
 9. <a id="global-archs-to-build"></a>You can build only for a particular arch in order to get smaller apk files. This
    can be done with by adding comma separated `ARCHS_TO_BUILD` in `.env` file or `ENVS` in `GitHub secrets` in the
@@ -200,13 +210,15 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
     ```
     Example:
     ```ini
-     YOUTUBE_EXCLUDE_PATCH=custom-branding,hide-get-premium
+     YOUTUBE_EXCLUDE_PATCH=Custom branding,Hide get premium
+
+     YOUTUBE_MUSIC_SPACE_FORMATTED_PATCHES=False
      YOUTUBE_MUSIC_EXCLUDE_PATCH=yt-music-is-shit
     ```
     Note -
     1. **All** the patches for an app are **included** by default.<br>
-    2. Revanced patches are provided as space separated, make sure you type those in lowercase and **-** (hyphen or dash) separated here.
-       It means a patch named `Hey There` must be entered as `hey-there` in the above example.
+    2. Some of the patch sources (like inotia00) may provide **-** seperated patches while some (ReVanced) shifted to
+   Space formatted patches. Use `<APP_NAME>_SPACE_FORMATTED_PATCHES` to define the type of patches at app level, if varies from global.
 12. <a id="custom-include-patching"></a>If you want to include any universal patch. Set comma separated patch in `.env`
     file or in `ENVS` in `GitHub secrets` in the format -
     ```ini
@@ -214,12 +226,15 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
     ```
     Example:
     ```ini
-     YOUTUBE_INCLUDE_PATCH=remove-screenshot-restriction
+     YOUTUBE_INCLUDE_PATCH=Remove Screenshot restriction
+
+     YOUTUBE_MUSIC_SPACE_FORMATTED_PATCHES=False
+     YOUTUBE_MUSIC_INCLUDE_PATCH=remove-screenshot-restriction
     ```
     Note -
-    1. Revanced patches are provided as space separated, make sure you type those in lowercase and **-** (hyphen or dash) separated here.
-       It means a patch named `Hey There` must be entered as `hey-there` in the above example.
-    2. Not all patch sources support universal patches.
+    1. Some of the patch sources (like inotia00) may provide **-** seperated patches while some (ReVanced) shifted to
+   Space formatted patches. Use `<APP_NAME>_SPACE_FORMATTED_PATCHES` to define the type of patches at app level, if varies from global.
+    2. Not all patch sources provide universal patches.
     3. Go with `EXCLUDE_PATCH` if you didn't understand `INCLUDE_PATCH` purpose as that requires only regular patches.
 13. <a id="app-version"></a>If you want to build a specific version or latest version. Add `version` in `.env` file
     or in `ENVS` in `GitHub secrets` in the format -
