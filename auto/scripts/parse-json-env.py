@@ -14,8 +14,10 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     # Load the JSON data
     data = json.loads(json_data)
 
+    global_old_key = data["env"][0].get("global_old_key", "")
     global_keystore = data["env"][0].get("global_keystore_file_name", "")
     global_archs = ",".join(data["env"][0].get("global_archs_to_build", []))
+    global_space_format = data["env"][0].get("global_space_format_patch", "")
     global_cli_dl = data["env"][0].get("global_cli_dl", "")
     global_patches_dl = data["env"][0].get("global_patches_dl", "")
     global_patches_json_dl = data["env"][0].get("global_patches_json_dl", "")
@@ -25,8 +27,10 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
     env_dict = {}
     env_dict["GLOBAL_REALNAME"] = "Global"
     env_dict["DRY_RUN"] = data["env"][0].get("dry_run", "")
+    env_dict["GLOBAL_OLD_KEY"] = global_old_key
     env_dict["GLOBAL_KEYSTORE_FILE_NAME"] = global_keystore
     env_dict["GLOBAL_ARCHS_TO_BUILD"] = global_archs
+    env_dict["GLOBAL_SPACE_FORMATTED_PATCHES"] = global_space_format
     env_dict["GLOBAL_CLI_DL"] = global_cli_dl
     env_dict["GLOBAL_PATCHES_DL"] = global_patches_dl
     env_dict["GLOBAL_PATCHES_JSON_DL"] = global_patches_json_dl
@@ -49,6 +53,7 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
 
         # Extract the required values
         app_version = app_data[app_package][0].get("version", "")
+        app_old_key = app_data[app_package][0].get("old_key", "")
         app_keystore = app_data[app_package][0].get("keystore", "")
         app_archs = ",".join(app_data[app_package][0].get("archs", []))
         app_dl = app_data[app_package][0].get("apk_dl", "")
@@ -57,6 +62,7 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         patches_dl = app_data[app_package][0].get("patches_dl", "")
         patches_json_dl = app_data[app_package][0].get("patches_json_dl", "")
         integrations_dl = app_data[app_package][0].get("integrations_dl", "")
+        space_format = app_data[app_package][0].get("space_format_patch", "")
         include_patch = ",".join(app_data[app_package][0].get("include_patch_app", []))
         exclude_patch = ",".join(app_data[app_package][0].get("exclude_patch_app", []))
 
@@ -65,6 +71,7 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         if app_dl or app_dl_source:
             env_dict[f"{app_name.upper()}_PACKAGE_NAME"] = app_package
         env_dict[f"{app_name.upper()}_VERSION"] = app_version
+        env_dict[f"{app_name.upper()}_OLD_KEY"] = app_old_key
         env_dict[f"{app_name.upper()}_KEYSTORE_FILE_NAME"] = app_keystore
         env_dict[f"{app_name.upper()}_ARCHS_TO_BUILD"] = app_archs
 
@@ -77,6 +84,7 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
         env_dict[f"{app_name.upper()}_PATCHES_DL"] = patches_dl
         env_dict[f"{app_name.upper()}_PATCHES_JSON_DL"] = patches_json_dl
         env_dict[f"{app_name.upper()}_INTEGRATIONS_DL"] = integrations_dl
+        env_dict[f"{app_name.upper()}_SPACE_FORMATTED_PATCHES"] = space_format
         env_dict[f"{app_name.upper()}_INCLUDE_PATCH"] = include_patch
         env_dict[f"{app_name.upper()}_EXCLUDE_PATCH"] = exclude_patch
 
@@ -102,8 +110,10 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
             value
             and key.startswith("GLOBAL_")
             and (
-                (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore)
+                (key.endswith("_OLD_KEY") and value == "True")
+                or (key.endswith("_KEYSTORE_FILE_NAME") and value == default_keystore)
                 or (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(default_archs.split(",")))
+                or (key.endswith("_SPACE_FORMATTED_PATCHES") and value == "True")
                 or (
                     key.endswith("_DL")
                     and value.lower()
@@ -118,8 +128,10 @@ def parse_env_json_to_env(json_data, output_file, key_order, key_order_placehold
             and not key.startswith("GLOBAL_")
             and (
                 (key.endswith("_VERSION") and value == "latest_supported")
+                or (key.endswith("_OLD_KEY") and value == global_old_key)
                 or (key.endswith("_KEYSTORE_FILE_NAME") and value == global_keystore)
                 or (key.endswith("_ARCHS_TO_BUILD") and set(value.split(",")) == set(global_archs.split(",")))
+                or (key.endswith("_SPACE_FORMATTED_PATCHES") and value == global_space_format)
                 or (
                     key.endswith("_DL")
                     and value.lower()
@@ -177,8 +189,10 @@ if __name__ == "__main__":
     key_order = [
         "GLOBAL_REALNAME",
         "DRY_RUN",
+        "GLOBAL_OLD_KEY",
         "GLOBAL_KEYSTORE_FILE_NAME",
         "GLOBAL_ARCHS_TO_BUILD",
+        "GLOBAL_SPACE_FORMATTED_PATCHES",
         "GLOBAL_CLI_DL",
         "GLOBAL_PATCHES_DL",
         "GLOBAL_PATCHES_JSON_DL",
@@ -193,12 +207,14 @@ if __name__ == "__main__":
         "APP_NAME_DL",
         "APP_NAME_DL_SOURCE",
         "APP_NAME_VERSION",
+        "APP_NAME_OLD_KEY",
         "APP_NAME_KEYSTORE_FILE_NAME",
         "APP_NAME_ARCHS_TO_BUILD",
         "APP_NAME_CLI_DL",
         "APP_NAME_PATCHES_DL",
         "APP_NAME_PATCHES_JSON_DL",
         "APP_NAME_INTEGRATIONS_DL",
+        "APP_NAME_SPACE_FORMATTED_PATCHES",
         "APP_NAME_INCLUDE_PATCH",
         "APP_NAME_EXCLUDE_PATCH",
     ]

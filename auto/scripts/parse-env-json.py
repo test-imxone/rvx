@@ -1,6 +1,7 @@
 import json
 import re
 
+import patch_sources as srcs
 import requests
 from loguru import logger
 
@@ -26,6 +27,19 @@ def get_pkg():
     for package_name, code in matches:
         get_pkg.dict[code.strip()] = package_name.strip()
     return env_content
+
+
+# Check for spaces in patches json Dls used
+@logger.catch
+def is_space_formatted(url):
+    checked = checkedSpaceDls.get(url)
+    if not checked:
+        item = next(filter(lambda x: x["patches_json_dl"] == url, patches_data), None)
+        r = requests.get(item["raw_url"])
+        json_data = r.json()
+        checked = "True" if any(" " in item["name"] for item in json_data) else "False"
+        checkedSpaceDls[url] = checked
+    return checked
 
 
 # Parse json_data from env_content
@@ -55,17 +69,20 @@ def parse_json_data(env_content):
     default_patches_json_dl = urls.get_patches_json_dl()
     default_integrations_dl = urls.get_integrations_dl()
 
+    global_patches_json_dl = ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl))
+    global_space_format = is_space_formatted(global_patches_json_dl)
+
     json_data = {
         "env": [
             {
                 "dry_run": env_dict.get("DRY_RUN", "False"),
+                "global_old_key": env_dict.get("GLOBAL_OLD_KEY", "True"),
                 "global_keystore_file_name": env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore),
                 "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
+                "global_space_format_patch": global_space_format,
                 "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl)),
                 "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl)),
-                "global_patches_json_dl": ut.manage_dls(
-                    env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl),
-                ),
+                "global_patches_json_dl": global_patches_json_dl,
                 "global_integrations_dl": ut.manage_dls(
                     env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
                 ),
@@ -91,6 +108,9 @@ def parse_json_data(env_content):
         apk_dl = env_dict.get(f"{code.upper()}_DL", None)
         apk_dl_source = env_dict.get(f"{code.upper()}_DL_SOURCE", None)
 
+        patches_json_dl = ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl))
+        space_format = is_space_formatted(patches_json_dl)
+
         include_patch = env_dict.get(f"{code.upper()}_INCLUDE_PATCH", "").lower().replace(" ", "-").split(",")
         exclude_patch = env_dict.get(f"{code.upper()}_EXCLUDE_PATCH", "").lower().replace(" ", "-").split(",")
 
@@ -101,17 +121,17 @@ def parse_json_data(env_content):
                     {
                         "app_name": code,
                         "version": env_dict.get(f"{code.upper()}_VERSION", "latest_supported"),
+                        "old_key": env_dict.get(f"{code.upper()}_OLD_KEY", "True"),
                         "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", default_keystore),
                         "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", default_archs).split(","),
                         **({"apk_dl": apk_dl} if apk_dl else {"apk_dl_source": apk_dl_source}),
                         "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl)),
                         "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl)),
-                        "patches_json_dl": ut.manage_dls(
-                            env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl),
-                        ),
+                        "patches_json_dl": patches_json_dl,
                         "integrations_dl": ut.manage_dls(
                             env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
                         ),
+                        "space_format_patch": space_format,
                         "include_patch_app": include_patch,
                         "exclude_patch_app": exclude_patch,
                     },
@@ -142,6 +162,8 @@ if __name__ == "__main__":
     py_file_url = urls.get_patches_py()
     env_file_url = urls.get_env()
     env_content = get_pkg()
+    patches_data = srcs.parse_env()
+    checkedSpaceDls = {}
 
     json_data = parse_json_data(env_content)
     json_data = replace_empty_lists(json_data)
