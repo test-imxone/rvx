@@ -44,22 +44,22 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
 
 ### App Level Config
 
-| Env Name                                                    |                        Description                        | Default                        |
-|:------------------------------------------------------------|:---------------------------------------------------------:|:-------------------------------|
-| [*APP_NAME*_CLI_DL](#global-resources)                      |     DL for CLI to be used for patching **APP_NAME**.      | GLOBAL_CLI_DL                  |
-| [*APP_NAME*_PATCHES_DL](#global-resources)                  |   DL for Patches to be used for patching **APP_NAME**.    | GLOBAL_PATCHES_DL              |
-| [*APP_NAME*_PATCHES_JSON_DL](#global-resources)             | DL for Patches Json to be used for patching **APP_NAME**. | GLOBAL_PATCHES_JSON_DL         |
-| [*APP_NAME*_INTEGRATIONS_DL](#global-resources)             | DL for Integrations to be used for patching **APP_NAME**. | GLOBAL_INTEGRATIONS_DL         |
-| [*APP_NAME*_KEYSTORE_FILE_NAME](#global-keystore-file-name) |       Key file to be used for signing **APP_NAME**.       | GLOBAL_KEYSTORE_FILE_NAME      |
-| [*APP_NAME*_OLD_KEY](#global-keystore-file-name)            |  Whether key used was generated with cli v4 (new) or not. | GLOBAL_OLD_KEY                 |
-| [*APP_NAME*_ARCHS_TO_BUILD](#global-archs-to-build)         |         Arch to keep in the patched **APP_NAME**.         | GLOBAL_ARCHS_TO_BUILD          |
-| [*APP_NAME*_SPACE_FORMATTED_PATCHES](#global-resources)     |    Whether patches are space formatted.   **APP_NAME**.   | GLOBAL_SPACE_FORMATTED_PATCHES |
-| [*APP_NAME*_EXCLUDE_PATCH*](#custom-exclude-patching)       |     Patches to exclude while patching  **APP_NAME**.      | []                             |
-| [*APP_NAME*_INCLUDE_PATCH**](#custom-include-patching)      |     Patches to include while patching  **APP_NAME**.      | []                             |
-| [*APP_NAME*_VERSION](#app-version)                          |         Version to use for download for patching.         | Recommended by patch resources |
-| [*APP_NAME*_PACKAGE_NAME***](#any-patch-apps)               |           Package name of the app to be patched           | None                           |
-| [*APP_NAME*_DL_SOURCE***](#any-patch-apps)                  |     Download source of any of the supported scrapper      | None                           |
-| [*APP_NAME*_DL***](#app-dl)                                 |            Direct download Link for clean apk             | None                           |
+| Env Name                                                       |                        Description                        | Default                        |
+|:---------------------------------------------------------------|:---------------------------------------------------------:|:-------------------------------|
+| [*APP_NAME*_CLI_DL](#global-resources)                         |     DL for CLI to be used for patching **APP_NAME**.      | GLOBAL_CLI_DL                  |
+| [*APP_NAME*_PATCHES_DL](#global-resources)                     |   DL for Patches to be used for patching **APP_NAME**.    | GLOBAL_PATCHES_DL              |
+| [*APP_NAME*_PATCHES_JSON_DL](#global-resources)                | DL for Patches Json to be used for patching **APP_NAME**. | GLOBAL_PATCHES_JSON_DL         |
+| [*APP_NAME*_INTEGRATIONS_DL](#global-resources)                | DL for Integrations to be used for patching **APP_NAME**. | GLOBAL_INTEGRATIONS_DL         |
+| [*APP_NAME*_KEYSTORE_FILE_NAME](#global-keystore-file-name)    |       Key file to be used for signing **APP_NAME**.       | GLOBAL_KEYSTORE_FILE_NAME      |
+| [*APP_NAME*_OLD_KEY](#global-keystore-file-name)               |  Whether key used was generated with cli v4 (new) or not. | GLOBAL_OLD_KEY                 |
+| [*APP_NAME*_ARCHS_TO_BUILD](#global-archs-to-build)            |         Arch to keep in the patched **APP_NAME**.         | GLOBAL_ARCHS_TO_BUILD          |
+| [*APP_NAME*_SPACE_FORMATTED_PATCHES](#custom-exclude-patching) |   Whether patches are space formatted for **APP_NAME**.   | GLOBAL_SPACE_FORMATTED_PATCHES |
+| [*APP_NAME*_EXCLUDE_PATCH*](#custom-exclude-patching)          |     Patches to exclude while patching  **APP_NAME**.      | []                             |
+| [*APP_NAME*_INCLUDE_PATCH**](#custom-include-patching)         |     Patches to include while patching  **APP_NAME**.      | []                             |
+| [*APP_NAME*_VERSION](#app-version)                             |         Version to use for download for patching.         | Recommended by patch resources |
+| [*APP_NAME*_PACKAGE_NAME***](#any-patch-apps)                  |           Package name of the app to be patched           | None                           |
+| [*APP_NAME*_DL_SOURCE***](#any-patch-apps)                     |     Download source of any of the supported scrapper      | None                           |
+| [*APP_NAME*_DL***](#app-dl)                                    |            Direct download Link for clean apk             | None                           |
 
 `*` - By default all patches for a given app are included.<br>
 `**` - Can be used to included universal patch.<br>
@@ -210,15 +210,15 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
     ```
     Example:
     ```ini
-     YOUTUBE_EXCLUDE_PATCH=Custom branding,Hide get premium
-
-     YOUTUBE_MUSIC_SPACE_FORMATTED_PATCHES=False
+     YOUTUBE_EXCLUDE_PATCH=custom-branding,hide-get-premium
      YOUTUBE_MUSIC_EXCLUDE_PATCH=yt-music-is-shit
     ```
     Note -
     1. **All** the patches for an app are **included** by default.<br>
     2. Some of the patch sources (like inotia00) may provide **-** seperated patches while some (ReVanced) shifted to
    Space formatted patches. Use `<APP_NAME>_SPACE_FORMATTED_PATCHES` to define the type of patches at app level, if varies from global.
+    3. Some patches are provided as space separated, make sure you type those in lowercase and **-** (hyphen or dash) separated here.
+       It means a patch named `Hey There` must be entered as `hey-there` in the above example.
 12. <a id="custom-include-patching"></a>If you want to include any universal patch. Set comma separated patch in `.env`
     file or in `ENVS` in `GitHub secrets` in the format -
     ```ini
@@ -226,16 +226,15 @@ If you don't define anything in `.env` file or `ENVS` in `GitHub Secrets`, these
     ```
     Example:
     ```ini
-     YOUTUBE_INCLUDE_PATCH=Remove Screenshot restriction
-
-     YOUTUBE_MUSIC_SPACE_FORMATTED_PATCHES=False
-     YOUTUBE_MUSIC_INCLUDE_PATCH=remove-screenshot-restriction
+     YOUTUBE_INCLUDE_PATCH=remove-screenshot-restriction
     ```
     Note -
     1. Some of the patch sources (like inotia00) may provide **-** seperated patches while some (ReVanced) shifted to
    Space formatted patches. Use `<APP_NAME>_SPACE_FORMATTED_PATCHES` to define the type of patches at app level, if varies from global.
-    2. Not all patch sources provide universal patches.
-    3. Go with `EXCLUDE_PATCH` if you didn't understand `INCLUDE_PATCH` purpose as that requires only regular patches.
+    2. Some patches are provided as space separated, make sure you type those in lowercase and **-** (hyphen or dash) separated here.
+       It means a patch named `Hey There` must be entered as `hey-there` in the above example.
+    3. Not all patch sources provide universal patches.
+    4. Go with `EXCLUDE_PATCH` if you didn't understand `INCLUDE_PATCH` purpose as that requires only regular patches.
 13. <a id="app-version"></a>If you want to build a specific version or latest version. Add `version` in `.env` file
     or in `ENVS` in `GitHub secrets` in the format -
     ```ini
