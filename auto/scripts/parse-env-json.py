@@ -69,23 +69,29 @@ def parse_json_data(env_content):
     default_patches_json_dl = urls.get_patches_json_dl()
     default_integrations_dl = urls.get_integrations_dl()
 
+    global_old_key = env_dict.get("GLOBAL_OLD_KEY", "True")
+    global_keystore = env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore)
+    global_archs = env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs)
+    global_cli_dl = ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl))
+    global_patches_dl = ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl))
     global_patches_json_dl = ut.manage_dls(env_dict.get("GLOBAL_PATCHES_JSON_DL", default_patches_json_dl))
+    global_integrations_dl = ut.manage_dls(
+        env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
+    )
     global_space_format = is_space_formatted(global_patches_json_dl)
 
     json_data = {
         "env": [
             {
                 "dry_run": env_dict.get("DRY_RUN", "False"),
-                "global_old_key": env_dict.get("GLOBAL_OLD_KEY", "True"),
-                "global_keystore_file_name": env_dict.get("GLOBAL_KEYSTORE_FILE_NAME", default_keystore),
-                "global_archs_to_build": env_dict.get("GLOBAL_ARCHS_TO_BUILD", default_archs).split(","),
+                "global_old_key": global_old_key,
+                "global_keystore_file_name": global_keystore,
+                "global_archs_to_build": global_archs.split(","),
                 "global_space_format_patch": global_space_format,
-                "global_cli_dl": ut.manage_dls(env_dict.get("GLOBAL_CLI_DL", default_cli_dl)),
-                "global_patches_dl": ut.manage_dls(env_dict.get("GLOBAL_PATCHES_DL", default_patches_dl)),
+                "global_cli_dl": global_cli_dl,
+                "global_patches_dl": global_patches_dl,
                 "global_patches_json_dl": global_patches_json_dl,
-                "global_integrations_dl": ut.manage_dls(
-                    env_dict.get("GLOBAL_INTEGRATIONS_DL", default_integrations_dl),
-                ),
+                "global_integrations_dl": global_integrations_dl,
                 "extra_files": [
                     {"url": ut.manage_dls(url_name.split("@")[0]), "name": url_name.split("@")[1]}
                     for url_name in extra_files_list
@@ -108,7 +114,7 @@ def parse_json_data(env_content):
         apk_dl = env_dict.get(f"{code.upper()}_DL", None)
         apk_dl_source = env_dict.get(f"{code.upper()}_DL_SOURCE", None)
 
-        patches_json_dl = ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", default_patches_json_dl))
+        patches_json_dl = ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_JSON_DL", global_patches_json_dl))
         space_format = is_space_formatted(patches_json_dl)
 
         include_patch = env_dict.get(f"{code.upper()}_INCLUDE_PATCH", "").lower().replace(" ", "-").split(",")
@@ -121,15 +127,15 @@ def parse_json_data(env_content):
                     {
                         "app_name": code,
                         "version": env_dict.get(f"{code.upper()}_VERSION", "latest_supported"),
-                        "old_key": env_dict.get(f"{code.upper()}_OLD_KEY", "True"),
-                        "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", default_keystore),
-                        "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", default_archs).split(","),
+                        "old_key": env_dict.get(f"{code.upper()}_OLD_KEY", global_old_key),
+                        "keystore": env_dict.get(f"{code.upper()}_KEYSTORE_FILE_NAME", global_keystore),
+                        "archs": env_dict.get(f"{code.upper()}_ARCHS_TO_BUILD", global_archs).split(","),
                         **({"apk_dl": apk_dl} if apk_dl else {"apk_dl_source": apk_dl_source}),
-                        "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", default_cli_dl)),
-                        "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", default_patches_dl)),
+                        "cli_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_CLI_DL", global_cli_dl)),
+                        "patches_dl": ut.manage_dls(env_dict.get(f"{code.upper()}_PATCHES_DL", global_patches_dl)),
                         "patches_json_dl": patches_json_dl,
                         "integrations_dl": ut.manage_dls(
-                            env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", default_integrations_dl),
+                            env_dict.get(f"{code.upper()}_INTEGRATIONS_DL", global_integrations_dl),
                         ),
                         "space_format_patch": space_format,
                         "include_patch_app": include_patch,
