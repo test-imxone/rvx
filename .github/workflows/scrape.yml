@@ -1,0 +1,26 @@
+name: Selenium Scraping
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@master
+
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r auto/scripts/requirements.txt
+
+      - name: Run Selenium script
+        run: python auto/tests/seltest.py
