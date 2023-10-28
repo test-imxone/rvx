@@ -9,7 +9,7 @@ display.start()
 chrome_options = Options()
 # chrome_options.add_argument("--headless")
 driver = uc.Chrome(headless=True, options=chrome_options)
-# driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome(options=chrome_options)
 
 # Navigate to a website
 driver.get("https://www.apkmirror.com/apk/red-apps-ltd/sync-for-reddit/")
