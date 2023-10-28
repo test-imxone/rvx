@@ -8,7 +8,7 @@ display = Display(visible=0, size=(800, 600))
 display.start()
 chrome_options = Options()
 options = uc.ChromeOptions()
-options.headless = True
+options.headless = False
 # chrome_options.add_argument("--headless")
 driver = uc.Chrome(options=options)
 # driver = webdriver.Chrome(options=chrome_options)
