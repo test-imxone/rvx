@@ -23,6 +23,7 @@ jobs:
           pip install -r auto/scripts/requirements.txt
           pip install selenium
           pip install pyvirtualdisplay
+          pip install undetected_chromedriver
 
       - name: Run Selenium script
         run: python auto/tests/seltest.py

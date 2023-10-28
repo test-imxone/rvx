@@ -1,12 +1,14 @@
-# from pyvirtualdisplay import Display
+from pyvirtualdisplay import Display
+import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-# display = Display(visible=0, size=(800, 600))
-# display.start()
+display = Display(visible=0, size=(800, 600))
+display.start()
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--headless")
+driver = uc.Chrome(options=chrome_options)
 driver = webdriver.Chrome(options=chrome_options)
 
 # Navigate to a website
@@ -18,4 +20,4 @@ print(element.text)
 
 # Close the browser
 driver.quit()
-# display.stop()
+display.stop()
