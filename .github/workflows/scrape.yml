@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r auto/scripts/requirements.txt
-          pip install selenium
+          pip install selenium==4.12.0
           pip install pyvirtualdisplay
           pip install undetected_chromedriver
 
